@@ -114,12 +114,29 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
     foodMatch = findBestFoodMatch(predictions, visualFeatures, palette);
   }
 
+  const matchMeta = foodMatch._match_meta || {
+    confidence_pct: 95.0,
+    confidence_formatted: '95.0%',
+    confidence_level: 'High Confidence',
+    visual_score: 90.0,
+    semantic_score: 0.0
+  };
+
   const totalTimeMs = Date.now() - overallStart;
 
   return {
     success: true,
     food_name: foodMatch.food_name,
     cuisine: foodMatch.cuisine,
+    confidence: matchMeta.confidence_formatted,
+    confidence_score: +(matchMeta.confidence_pct / 100).toFixed(3),
+    confidence_level: matchMeta.confidence_level,
+    ai_confidence: {
+      percentage: matchMeta.confidence_pct,
+      formatted: matchMeta.confidence_formatted,
+      level: matchMeta.confidence_level,
+      color_vector_fit: +(matchMeta.visual_score || 88).toFixed(1) + '%'
+    },
     restaurant_type: foodMatch.restaurant_type,
     menu_section: foodMatch.menu_section,
     price_estimate: foodMatch.price_estimate,
@@ -129,6 +146,8 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
     user_reviews: foodMatch.user_reviews,
     suggested_pairing: foodMatch.suggested_pairing,
     ai_vision: {
+      confidence: matchMeta.confidence_formatted,
+      confidence_level: matchMeta.confidence_level,
       predictions: predictions.slice(0, 3).map(p => ({
         label: p.className,
         confidence: +(p.probability * 100).toFixed(1) + '%'

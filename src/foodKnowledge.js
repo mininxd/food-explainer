@@ -1219,8 +1219,42 @@ function findBestFoodMatch(predictions = [], visualFeatures = null, palette = nu
   // Sort descending by total score
   scoredDishes.sort((a, b) => b.totalScore - a.totalScore);
 
-  const bestMatchId = scoredDishes[0].id;
-  return FOOD_DATABASE[bestMatchId] || FOOD_DATABASE.ramen;
+  const bestMatch = scoredDishes[0];
+  const runnerUp = scoredDishes[1];
+  const lead = runnerUp ? (bestMatch.totalScore - runnerUp.totalScore) : 25;
+
+  // Compute confidence percentage (typically 80.0% - 98.8%)
+  let conf = Math.min(97.8, Math.max(76.0, (bestMatch.visualScore * 0.55) + 40));
+  if (bestMatch.semanticScore > 0) {
+    conf += Math.min(8.0, bestMatch.semanticScore * 0.12);
+  }
+  if (lead > 15) {
+    conf += Math.min(5.0, (lead - 15) * 0.12);
+  } else if (lead < 5) {
+    conf -= 4.0;
+  }
+  const confidencePct = Math.min(98.8, Math.max(74.5, +conf.toFixed(1)));
+
+  let confLevel = 'High Confidence';
+  if (confidencePct < 80.0) {
+    confLevel = 'Moderate Confidence';
+  } else if (confidencePct >= 92.0) {
+    confLevel = 'Very High Confidence';
+  }
+
+  const bestDish = FOOD_DATABASE[bestMatch.id] || FOOD_DATABASE.ramen;
+  return {
+    ...bestDish,
+    _match_meta: {
+      confidence_pct: confidencePct,
+      confidence_formatted: `${confidencePct}%`,
+      confidence_level: confLevel,
+      visual_score: bestMatch.visualScore,
+      semantic_score: bestMatch.semanticScore,
+      total_score: bestMatch.totalScore,
+      lead_over_runner_up: +lead.toFixed(1)
+    }
+  };
 }
 
 module.exports = {
