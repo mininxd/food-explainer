@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Explainer — Low-Weight Restaurant AI Demo</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .pulse-subtle { animation: pulse-subtle 2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-orange-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-3xl">🍲</span>
+        <div>
+          <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            Food Explainer <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">Hackathon Edition</span>
+          </h1>
+          <p class="text-xs text-slate-400">Low-Weight Restaurant AI • Auto-Compress (>512KB) • Image-to-Text</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3 text-xs">
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300">
+          <i class="ph ph-cpu text-emerald-400 text-sm"></i>
+          <span>Model: <strong class="text-white">MobileNet (~1.7 MB)</strong></span>
+        </div>
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300">
+          <i class="ph ph-file-zip text-orange-400 text-sm"></i>
+          <span>Budget: <strong class="text-white">&le; 512 KB</strong></span>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Node 24 + Python Ready
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- HERO BANNER -->
+    <div class="mb-8 bg-gradient-to-r from-orange-950/40 via-slate-900 to-slate-900 border border-orange-500/20 rounded-2xl p-6 sm:p-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Take a Food Photo — Get Restaurant Title, Taste & Reviews
+          </h2>
+          <p class="mt-2 text-slate-300 text-sm sm:text-base max-w-3xl leading-relaxed">
+            Designed for restaurant diners: snap or upload a food photo to instantly identify the 
+            <strong class="text-orange-400">food_name</strong>, explore its <strong class="text-orange-400">flavor profile</strong>, 
+            understand the lingering <strong class="text-orange-400">aftertaste</strong>, and read synthesized <strong class="text-orange-400">diner reviews</strong>. 
+            Built with a high-efficiency <span class="underline decoration-orange-500/50">low-weight AI model</span> that auto-compresses images over 512KB for minimal compute footprint.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-center sm:min-w-[280px]">
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+            <div class="text-xs text-slate-400">Model Memory</div>
+            <div class="text-lg font-bold text-emerald-400">&lt; 1.8 MB</div>
+            <div class="text-[10px] text-slate-500">Edge Optimized</div>
+          </div>
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+            <div class="text-xs text-slate-400">Threshold Guard</div>
+            <div class="text-lg font-bold text-orange-400">512 KB</div>
+            <div class="text-[10px] text-slate-500">Auto-Precompressed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKSPACE GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- LEFT COLUMN: INPUT, CAMERA, AND COMPRESSION INSPECTOR (5 cols) -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- PHOTO UPLOAD & CAPTURE CARD -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="ph ph-camera text-orange-400 text-lg"></i>
+              Step 1: Input Food Photo
+            </h3>
+            <span class="text-xs text-slate-400">Live or Upload</span>
+          </div>
+
+          <!-- Camera Stream (hidden until toggled) -->
+          <div id="cameraContainer" class="hidden mb-4 relative rounded-xl overflow-hidden bg-black border border-slate-700">
+            <video id="videoPreview" autoplay playsinline class="w-full h-56 object-cover"></video>
+            <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+              <button id="snapPhotoBtn" class="bg-orange-600 hover:bg-orange-500 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-1.5">
+                <i class="ph ph-aperture"></i> Capture Snapshot
+              </button>
+              <button id="closeCameraBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload Dropzone -->
+          <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-orange-500/60 bg-slate-950/50 rounded-xl p-6 text-center cursor-pointer transition-colors duration-200">
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            
+            <div id="uploadPrompt">
+              <div class="w-12 h-12 mx-auto rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-2xl mb-3">
+                <i class="ph ph-cloud-arrow-up"></i>
+              </div>
+              <p class="text-sm font-semibold text-slate-200">Click to upload or drag & drop food photo</p>
+              <p class="text-xs text-slate-400 mt-1">JPEG, PNG, WEBP • Automatically compressed if > 512KB</p>
+            </div>
+
+            <div id="previewContainer" class="hidden">
+              <div class="relative inline-block max-h-56 rounded-lg overflow-hidden border border-slate-700 shadow-md">
+                <img id="imagePreview" src="" alt="Selected food" class="max-h-56 max-w-full object-contain">
+                <button id="clearImageBtn" class="absolute top-2 right-2 bg-slate-950/80 hover:bg-rose-900/80 text-white rounded-full p-1.5 text-xs backdrop-blur">
+                  <i class="ph ph-x"></i>
+                </button>
+              </div>
+              <p id="fileInfoText" class="text-xs text-slate-400 mt-2 font-mono"></p>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="flex gap-2 mt-4">
+            <button id="openCameraBtn" class="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 transition">
+              <i class="ph ph-video-camera text-sm"></i>
+              Open Camera
+            </button>
+            <button id="browseFilesBtn" class="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 transition">
+              <i class="ph ph-folder-open text-sm"></i>
+              Select File
+            </button>
+          </div>
+        </div>
+
+        <!-- PRESET RESTAURANT SAMPLES -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="ph ph-fork-knife text-orange-400 text-lg"></i>
+              Quick Test: Restaurant Dishes
+            </h3>
+            <span class="text-[11px] text-slate-400">1-Click Demos</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">
+            Test dishes with varied file sizes to witness the <strong class="text-orange-400">&gt;512KB compression trigger</strong> vs direct processing:
+          </p>
+
+          <div class="grid grid-cols-2 gap-2.5" id="samplesContainer">
+            <!-- Dynamically populated or fallback presets -->
+            <button onclick="testPreset('ramen')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍜 Tonkotsu Ramen</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.7 MB</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                <span>Rich Pork Broth</span>
+                <span class="text-orange-400">&gt;512KB Compress</span>
+              </div>
+            </button>
+
+            <button onclick="testPreset('pizza')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍕 Margherita Pizza</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.2 MB</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                <span>San Marzano DOP</span>
+                <span class="text-orange-400">&gt;512KB Compress</span>
+              </div>
+            </button>
+
+            <button onclick="testPreset('cheeseburger')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍔 Angus Burger</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">67 KB</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                <span>Dry-Aged Bacon</span>
+                <span class="text-emerald-400">&le;512KB Direct</span>
+              </div>
+            </button>
+
+            <button onclick="testPreset('sushi')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍣 Nigiri Platter</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.7 MB</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                <span>Otoro & Salmon</span>
+                <span class="text-orange-400">&gt;512KB Compress</span>
+              </div>
+            </button>
+
+            <button onclick="testPreset('tacos')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🌮 Tacos al Pastor</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">67 KB</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                <span>Spiced Trompo</span>
+                <span class="text-emerald-400">&le;512KB Direct</span>
+              </div>
+            </button>
+
+            <button onclick="testPreset('risotto')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍄 Truffle Risotto</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.4 MB</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                <span>Porcini & Truffle</span>
+                <span class="text-orange-400">&gt;512KB Compress</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- EXPLAIN ACTION BUTTON -->
+        <button id="explainBtn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold text-sm shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2 transition duration-150 transform active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="ph ph-sparkle text-lg"></i>
+          <span>Run Low-Weight AI Food Explainer</span>
+        </button>
+
+        <!-- PRE-AI COMPRESSION MONITOR CARD -->
+        <div id="compressionDashboard" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i class="ph ph-gauge text-orange-400"></i>
+              Pre-AI Compression Guard
+            </h4>
+            <span id="compressionBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+              Standing by
+            </span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="flex justify-between items-center text-slate-300">
+              <span>Rule Threshold:</span>
+              <span class="font-mono text-slate-400 font-medium">512.0 KB</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>Original Image Size:</span>
+              <span id="statOrigSize" class="font-mono text-slate-400 font-medium">—</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>Payload Sent to AI Model:</span>
+              <span id="statCompSize" class="font-mono text-slate-400 font-medium">—</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>AI Footprint Reduction:</span>
+              <span id="statReduction" class="font-mono text-slate-400 font-bold">—</span>
+            </div>
+
+            <!-- Progress visualizer bar -->
+            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+              <div id="compressionBar" class="bg-gradient-to-r from-orange-500 to-emerald-400 h-2 rounded-full w-0 transition-all duration-500"></div>
+            </div>
+
+            <p id="compressionMessage" class="text-[11px] text-slate-400 leading-normal italic pt-1">
+              Select an image or sample dish to see the pre-compression engine in action.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- RIGHT COLUMN: RESTAURANT EXPLANATION & DINER REVIEWS (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- LOADING STATE -->
+        <div id="loadingCard" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center shadow-xl">
+          <div class="w-16 h-16 mx-auto mb-4 relative">
+            <div class="w-16 h-16 rounded-full border-4 border-orange-500/20 border-t-orange-500 animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-xl">🍲</div>
+          </div>
+          <h4 class="text-lg font-bold text-white">Analyzing Food with Low-Weight Model...</h4>
+          <p id="loadingStatusText" class="text-xs text-slate-400 mt-2">Checking &gt;512KB compression threshold...</p>
+        </div>
+
+        <!-- MAIN RESULT CARD -->
+        <div id="resultCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+          
+          <!-- Background accent glow -->
+          <div class="absolute -top-24 -right-24 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- HEADER: FOOD NAME & RESTAURANT CLASSIFICATION -->
+          <div class="border-b border-slate-800 pb-6 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-2">
+                <span id="cuisineBadge" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                  Japanese / Hakata Style
+                </span>
+                <span id="restaurantTypeBadge" class="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">
+                  Ramen Specialty
+                </span>
+              </div>
+              <div class="text-sm font-semibold text-slate-300 font-mono" id="priceBadge">
+                Est. $17.50
+              </div>
+            </div>
+
+            <h2 id="foodName" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Spicy Tonkotsu Chashu Ramen
+            </h2>
+            <p id="menuSectionText" class="text-xs text-slate-400 mt-1">
+              Menu Classification: <span class="text-slate-300 font-medium">Chef Special Noodle Bowls</span>
+            </p>
+          </div>
+
+          <!-- SECTION 1: FOOD DESCRIPTION (HOW IT TASTES) -->
+          <div class="space-y-5 mb-8">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center text-base">
+                <i class="ph ph-bowl-food"></i>
+              </div>
+              <h3 class="text-base font-bold text-white">1. Food Description & How It Tastes</h3>
+            </div>
+
+            <!-- Taste Summary -->
+            <p id="tasteSummary" class="text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+              A 16-hour slow-simmered pork bone broth layered with handmade wavy noodles, melt-in-your-mouth braised pork belly (chashu), seasoned ajitsuke tamago, nori, and roasted black garlic oil.
+            </p>
+
+            <!-- Taste Profile Radar / Meters -->
+            <div>
+              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                Gastronomic Flavor Breakdown
+              </h4>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="tasteMetersContainer">
+                <!-- Umami -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-300 font-medium">Umami</span>
+                    <span id="scoreUmami" class="text-orange-400 font-bold">9/10</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="barUmami" class="bg-orange-500 h-1.5 rounded-full" style="width: 90%"></div>
+                  </div>
+                </div>
+                <!-- Richness -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-300 font-medium">Richness</span>
+                    <span id="scoreRichness" class="text-orange-400 font-bold">9/10</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="barRichness" class="bg-orange-500 h-1.5 rounded-full" style="width: 90%"></div>
+                  </div>
+                </div>
+                <!-- Savory -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-300 font-medium">Savory</span>
+                    <span id="scoreSavory" class="text-orange-400 font-bold">9/10</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="barSavory" class="bg-orange-500 h-1.5 rounded-full" style="width: 90%"></div>
+                  </div>
+                </div>
+                <!-- Spice Level -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-300 font-medium">Spiciness</span>
+                    <span id="scoreSpicy" class="text-orange-400 font-bold">6/10</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="barSpicy" class="bg-orange-500 h-1.5 rounded-full" style="width: 60%"></div>
+                  </div>
+                </div>
+                <!-- Sweetness -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-300 font-medium">Sweetness</span>
+                    <span id="scoreSweet" class="text-orange-400 font-bold">3/10</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="barSweet" class="bg-orange-500 h-1.5 rounded-full" style="width: 30%"></div>
+                  </div>
+                </div>
+                <!-- Acidity -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-300 font-medium">Acidity</span>
+                    <span id="scoreAcidity" class="text-orange-400 font-bold">2/10</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="barAcidity" class="bg-orange-500 h-1.5 rounded-full" style="width: 20%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mouthfeel & Aroma details -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                <span class="text-slate-400 font-medium block mb-1">👄 Texture & Mouthfeel:</span>
+                <span id="mouthfeelText" class="text-slate-200">Velvety, deeply collagen-rich broth that coats the palate, paired with springy al dente noodles.</span>
+              </div>
+              <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                <span class="text-slate-400 font-medium block mb-1">👃 Aromatic Notes:</span>
+                <span id="aromaText" class="text-slate-200">Toasted black sesame, smoky caramelized pork fat, and sweet scallion aromatics.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: AFTERTASTE EXPLANATION -->
+          <div class="space-y-4 mb-8 bg-gradient-to-r from-amber-950/20 to-slate-950 p-5 rounded-2xl border border-amber-500/20">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-base">
+                  <i class="ph ph-wind"></i>
+                </div>
+                <h3 class="text-base font-bold text-white">2. Aftertaste & Finish Profile</h3>
+              </div>
+              <span id="finishDurationBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
+                Long & Sustained (3-5 min)
+              </span>
+            </div>
+
+            <p id="aftertasteDescription" class="text-sm text-slate-300 leading-relaxed">
+              Leaves a long, comforting coating of savory pork collagen on the tongue, followed by a gentle, warming tingle of chili oil and a smoky garlic finish that lingers for several minutes without cloying.
+            </p>
+
+            <div class="text-xs text-amber-300/80 flex items-center gap-2">
+              <i class="ph ph-sparkle"></i>
+              <span>Palate Sensation: <strong id="palateSensationText" class="text-amber-200">Warm, savory, and soothingly coated</strong></span>
+            </div>
+          </div>
+
+          <!-- SECTION 3: USER DINING REVIEWS -->
+          <div class="space-y-4 mb-8">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">
+                  <i class="ph ph-chat-centered-text"></i>
+                </div>
+                <h3 class="text-base font-bold text-white">3. Customer Reviews (Taste & Aftertaste)</h3>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="flex text-amber-400 text-xs">
+                  <i class="ph-fill ph-star"></i>
+                  <i class="ph-fill ph-star"></i>
+                  <i class="ph-fill ph-star"></i>
+                  <i class="ph-fill ph-star"></i>
+                  <i class="ph-fill ph-star"></i>
+                </div>
+                <span id="overallRatingText" class="text-sm font-bold text-white">4.9</span>
+                <span id="reviewCountText" class="text-xs text-slate-400">(328 reviews)</span>
+              </div>
+            </div>
+
+            <p id="reviewConsensus" class="text-xs text-slate-400 italic">
+              "Diners overwhelmingly praise the deep richness of the broth and the addictive, lingering chili-garlic aftertaste."
+            </p>
+
+            <!-- Review Cards -->
+            <div class="space-y-3" id="reviewsList">
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="text-xs font-semibold text-slate-200">Kenji S. (Local Guide)</span>
+                  <div class="flex text-amber-400 text-[10px]">
+                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  "The broth has that thick, lip-smacking gelatin richness you only get from all-day simmering. The aftertaste has this subtle smoky garlic finish that makes you keep scooping until the bowl is bone dry."
+                </p>
+              </div>
+
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="text-xs font-semibold text-slate-200">Sarah L.</span>
+                  <div class="flex text-amber-400 text-[10px]">
+                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  "Chashu literally dissolves on your tongue. The spicy kick is nicely balanced by the sweet pork fat. No chemical aftertaste at all, just pure savory warmth."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOOTER: PAIRING & AI TELEMETRY -->
+          <div class="pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs">
+            <div class="flex items-center gap-2 text-slate-300">
+              <i class="ph ph-wine text-orange-400 text-base"></i>
+              <span>Suggested Beverage Pairing: <strong id="pairingText" class="text-white">Iced Oolong Tea or Dry Junmai Ginjo Sake</strong></span>
+            </div>
+
+            <div class="flex items-center gap-2 text-[11px] text-slate-400 font-mono bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+              <span id="aiTelemetryText">Latency: 48ms • Model: MobileNet v1 (1.7 MB)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT APP LOGIC -->
+  <script>
+    let currentImageBase64 = null;
+    let currentFile = null;
+    let cameraStream = null;
+
+    // Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileInfoText = document.getElementById('fileInfoText');
+    const clearImageBtn = document.getElementById('clearImageBtn');
+    const explainBtn = document.getElementById('explainBtn');
+
+    const openCameraBtn = document.getElementById('openCameraBtn');
+    const closeCameraBtn = document.getElementById('closeCameraBtn');
+    const snapPhotoBtn = document.getElementById('snapPhotoBtn');
+    const cameraContainer = document.getElementById('cameraContainer');
+    const videoPreview = document.getElementById('videoPreview');
+
+    const loadingCard = document.getElementById('loadingCard');
+    const resultCard = document.getElementById('resultCard');
+
+    // Compression Dashboard Elements
+    const statOrigSize = document.getElementById('statOrigSize');
+    const statCompSize = document.getElementById('statCompSize');
+    const statReduction = document.getElementById('statReduction');
+    const compressionBadge = document.getElementById('compressionBadge');
+    const compressionBar = document.getElementById('compressionBar');
+    const compressionMessage = document.getElementById('compressionMessage');
+
+    // Drag and Drop
+    dropzone.addEventListener('click', () => fileInput.click());
+    document.getElementById('browseFilesBtn').addEventListener('click', () => fileInput.click());
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('border-orange-500', 'bg-orange-950/10');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-orange-500', 'bg-orange-950/10');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleFileSelection(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleFileSelection(e.target.files[0]);
+      }
+    });
+
+    function handleFileSelection(file) {
+      currentFile = file;
+      const sizeKb = (file.size / 1024).toFixed(1);
+      fileInfoText.textContent = `${file.name} (${sizeKb} KB) • ${sizeKb > 512 ? 'Over 512KB (Will Pre-Compress)' : 'Under 512KB (Direct Pass)'}`;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentImageBase64 = e.target.result;
+        imagePreview.src = currentImageBase64;
+        uploadPrompt.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+
+        // Update dashboard preview
+        statOrigSize.textContent = `${sizeKb} KB`;
+        if (sizeKb > 512) {
+          compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30';
+          compressionBadge.textContent = 'Auto-Compress Triggered';
+          compressionMessage.textContent = `File exceeds 512 KB threshold (${sizeKb} KB). System will compress it down before feeding to MobileNet to reduce memory and compute.`;
+        } else {
+          compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          compressionBadge.textContent = 'Under Threshold Budget';
+          compressionMessage.textContent = `File is ${sizeKb} KB (under 512 KB budget). Directly processed by Low-Weight AI without lossy compression.`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    clearImageBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentFile = null;
+      currentImageBase64 = null;
+      fileInput.value = '';
+      imagePreview.src = '';
+      uploadPrompt.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+    });
+
+    // Camera Access
+    openCameraBtn.addEventListener('click', async () => {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        videoPreview.srcObject = cameraStream;
+        cameraContainer.classList.remove('hidden');
+      } catch (err) {
+        alert('Could not access camera: ' + err.message + '\nPlease use file upload instead.');
+      }
+    });
+
+    closeCameraBtn.addEventListener('click', () => {
+      stopCamera();
+    });
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      cameraContainer.classList.add('hidden');
+    }
+
+    snapPhotoBtn.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoPreview.videoWidth || 640;
+      canvas.height = videoPreview.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+      
+      currentImageBase64 = canvas.toDataURL('image/jpeg', 0.95);
+      imagePreview.src = currentImageBase64;
+      currentFile = null;
+
+      const approxSizeKb = (currentImageBase64.length * 0.75 / 1024).toFixed(1);
+      fileInfoText.textContent = `Camera Snapshot (${approxSizeKb} KB)`;
+      uploadPrompt.classList.add('hidden');
+      previewContainer.classList.remove('hidden');
+      stopCamera();
+    });
+
+    // 1-Click Preset Testing
+    window.testPreset = async function(presetId) {
+      runExplanation({ presetId });
+    };
+
+    explainBtn.addEventListener('click', () => {
+      if (currentFile) {
+        const formData = new FormData();
+        formData.append('image', currentFile);
+        runExplanation({ formData });
+      } else if (currentImageBase64) {
+        runExplanation({ imageBase64: currentImageBase64 });
+      } else {
+        alert('Please choose a food photo, snap a camera picture, or click one of the restaurant presets!');
+      }
+    });
+
+    async function runExplanation(payload) {
+      loadingCard.classList.remove('hidden');
+      resultCard.classList.add('opacity-40');
+      explainBtn.disabled = true;
+
+      try {
+        let response;
+        if (payload.formData) {
+          response = await fetch('/api/explain', {
+            method: 'POST',
+            body: payload.formData
+          });
+        } else {
+          response = await fetch('/api/explain', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        renderResults(data);
+
+      } catch (err) {
+        alert('Error analyzing food: ' + err.message);
+      } finally {
+        loadingCard.classList.add('hidden');
+        resultCard.classList.remove('opacity-40');
+        explainBtn.disabled = false;
+      }
+    }
+
+    function renderResults(data) {
+      // 1. Food Name & Metadata
+      document.getElementById('foodName').textContent = data.food_name;
+      document.getElementById('cuisineBadge').textContent = data.cuisine;
+      document.getElementById('restaurantTypeBadge').textContent = data.restaurant_type;
+      document.getElementById('priceBadge').textContent = `Est. ${data.price_estimate}`;
+      document.getElementById('menuSectionText').innerHTML = `Menu Classification: <span class="text-slate-300 font-medium">${data.menu_section}</span>`;
+
+      // 2. Food Description & Taste Breakdown
+      document.getElementById('tasteSummary').textContent = data.food_description.summary;
+      document.getElementById('mouthfeelText').textContent = data.food_description.mouthfeel;
+      document.getElementById('aromaText').textContent = data.food_description.aroma;
+
+      const tp = data.food_description.taste_profile;
+      document.getElementById('scoreUmami').textContent = `${tp.umami}/10`;
+      document.getElementById('barUmami').style.width = `${tp.umami * 10}%`;
+
+      document.getElementById('scoreRichness').textContent = `${tp.richness}/10`;
+      document.getElementById('barRichness').style.width = `${tp.richness * 10}%`;
+
+      document.getElementById('scoreSavory').textContent = `${tp.savory}/10`;
+      document.getElementById('barSavory').style.width = `${tp.savory * 10}%`;
+
+      document.getElementById('scoreSpicy').textContent = `${tp.spicy}/10`;
+      document.getElementById('barSpicy').style.width = `${tp.spicy * 10}%`;
+
+      document.getElementById('scoreSweet').textContent = `${tp.sweet}/10`;
+      document.getElementById('barSweet').style.width = `${tp.sweet * 10}%`;
+
+      document.getElementById('scoreAcidity').textContent = `${tp.acidity}/10`;
+      document.getElementById('barAcidity').style.width = `${tp.acidity * 10}%`;
+
+      // 3. Aftertaste
+      document.getElementById('aftertasteDescription').textContent = data.aftertaste.description;
+      document.getElementById('finishDurationBadge').textContent = data.aftertaste.finish_duration;
+      document.getElementById('palateSensationText').textContent = data.aftertaste.palate_sensation;
+
+      // 4. User Reviews
+      document.getElementById('overallRatingText').textContent = data.user_reviews.overall_rating;
+      document.getElementById('reviewCountText').textContent = `(${data.user_reviews.review_count} reviews)`;
+      document.getElementById('reviewConsensus').textContent = `"${data.user_reviews.consensus}"`;
+
+      const reviewsList = document.getElementById('reviewsList');
+      reviewsList.innerHTML = '';
+      data.user_reviews.reviews.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'bg-slate-950 p-4 rounded-xl border border-slate-800';
+        item.innerHTML = `
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-semibold text-slate-200">${r.reviewer} <span class="text-[10px] text-slate-500 font-normal ml-1">${r.date}</span></span>
+            <div class="flex text-amber-400 text-[10px]">
+              <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">"${r.comment}"</p>
+        `;
+        reviewsList.appendChild(item);
+      });
+
+      // 5. Pairing
+      document.getElementById('pairingText').textContent = data.suggested_pairing;
+
+      // 6. Compression Dashboard Stats
+      const comp = data.compression;
+      statOrigSize.textContent = `${comp.originalSizeKb} KB`;
+      statCompSize.textContent = `${comp.finalSizeKb} KB`;
+      statReduction.textContent = comp.savingsPercentage;
+
+      if (comp.compressed) {
+        compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30';
+        compressionBadge.textContent = 'Auto-Compressed (>512KB)';
+        compressionBar.style.width = comp.savingsPercentage;
+      } else {
+        compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        compressionBadge.textContent = 'Direct Pass (<=512KB)';
+        compressionBar.style.width = '100%';
+      }
+      compressionMessage.textContent = comp.message;
+
+      // 7. AI Telemetry
+      document.getElementById('aiTelemetryText').textContent = 
+        `Inference: ${data.ai_vision.model_info.inference_latency_ms}ms • Total: ${data.performance.total_latency_ms}ms • Model Size: ${data.ai_vision.model_info.size_mb} MB • ${data.python_integration.engine}`;
+    }
+  </script>
+</body>
+</html>
