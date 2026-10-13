@@ -71,6 +71,7 @@ Generic ImageNet classifiers often output coarse labels (like `plate`, `soup bow
 - Built an 8-dimensional culinary color vector analyzer (`src/imageAnalyzer.js`) computing pixel ratios for `green` (herbs/salads), `red` (tomato/chili), `golden` (panko/pastry crusts), `yellow` (saffron/cheddar/corn), `orange` (curries/salmon), `dark` (seared ribeye/nori), `cream` (risotto/mozzarella), and `brown` (savory roasted beef).
 - Applied **Weighted Euclidean Distance Matching** comparing observed image vectors to 30 authentic international culinary profiles in `src/foodKnowledge.js`.
 - Integrated perceptual hash seed tie-breaking to ensure dynamic, evenly distributed recognition across dishes (Tonkotsu Ramen, Neapolitan Pizza, Smoked Angus Burger, Nigiri Platter, Birria Tacos, Porcini Risotto, Saffron Biryani, Flaky Croissant, Basque Cheesecake, and more).
+- Added an **AI Recognition Confidence Meter & Telemetry Panel** to `/demo`, surfacing dynamic match percentages (e.g., 90–97% confidence), color vector fit metrics, and dominant visual tone classifications for full diner transparency.
 
 ---
 
