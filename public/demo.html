@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Food Explainer — Low-Weight Restaurant AI Demo</title>
+  <title>Food Explainer — Restaurant Dish & Tasting Guide</title>
+  <!-- Google Fonts: Playfair Display for restaurant elegance, Plus Jakarta Sans for clean readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Phosphor Icons -->
@@ -12,513 +16,526 @@
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
           colors: {
-            brand: {
-              50: '#fff7ed',
-              100: '#ffedd5',
-              500: '#f97316',
-              600: '#ea580c',
-              700: '#c2410c'
+            culinary: {
+              primary: '#9A3412', // Rich terracotta/paprika
+              dark: '#7C2D12',
+              cream: '#FAFAF8',
+              surface: '#FFFFFF',
+              border: '#E7E5E4',
+              accent: '#B45309', // Amber
+              muted: '#78716C',
             }
           }
         }
       }
     }
   </script>
-  <style>
-    @keyframes pulse-subtle {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-    .pulse-subtle { animation: pulse-subtle 2s infinite ease-in-out; }
-  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-orange-500 selection:text-white">
+<body class="bg-[#F8F7F4] text-stone-900 font-sans min-h-screen antialiased">
 
-  <!-- TOP NAVIGATION BAR -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <span class="text-3xl">🍲</span>
+  <!-- TOP RESTAURANT NAVIGATION BAR -->
+  <header class="bg-white border-b border-stone-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Restaurant Brand / Logo -->
+      <div class="flex items-center space-x-3.5">
+        <div class="w-11 h-11 rounded-lg bg-orange-800 text-white flex items-center justify-center text-xl shadow-sm">
+          <i class="ph ph-fork-knife"></i>
+        </div>
         <div>
-          <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            Food Explainer <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">Hackathon Edition</span>
-          </h1>
-          <p class="text-xs text-slate-400">Low-Weight Restaurant AI • Auto-Compress (>512KB) • Image-to-Text</p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-serif font-bold text-stone-900 tracking-tight">Food Explainer</h1>
+            <span class="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-300">
+              Restaurant Edition
+            </span>
+          </div>
+          <p class="text-xs text-stone-500 font-medium">Digital Dish Identifier, Taste Breakdown & Customer Reviews</p>
         </div>
       </div>
-      <div class="flex items-center space-x-3 text-xs">
-        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300">
-          <i class="ph ph-cpu text-emerald-400 text-sm"></i>
-          <span>Model: <strong class="text-white">MobileNet (~1.7 MB)</strong></span>
+
+      <!-- System Badges (Clean, Solid, Light Mode) -->
+      <div class="hidden md:flex items-center space-x-2 text-xs">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-stone-100 text-stone-700 border border-stone-200 font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+          <span>Engine: <strong>TensorFlow C++ Native</strong></span>
         </div>
-        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300">
-          <i class="ph ph-file-zip text-orange-400 text-sm"></i>
-          <span>Budget: <strong class="text-white">&le; 512 KB</strong></span>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-stone-100 text-stone-700 border border-stone-200 font-medium">
+          <i class="ph ph-shield-check text-stone-700"></i>
+          <span>Auto-Compress: <strong>&gt; 512 KB</strong></span>
         </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Node 24 + Python Ready
-        </span>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-stone-100 text-stone-700 border border-stone-200 font-medium">
+          <i class="ph ph-lightning text-stone-700"></i>
+          <span>Model: <strong>1.7 MB (Low-Weight)</strong></span>
+        </div>
       </div>
+
     </div>
   </header>
 
   <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- HERO BANNER -->
-    <div class="mb-8 bg-gradient-to-r from-orange-950/40 via-slate-900 to-slate-900 border border-orange-500/20 rounded-2xl p-6 sm:p-8">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <!-- WELCOME RESTAURANT BANNER -->
+    <section class="bg-white border border-stone-200 rounded-xl p-6 sm:p-7 mb-8 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Take a Food Photo — Get Restaurant Title, Taste & Reviews
+          <span class="text-xs font-bold uppercase tracking-wider text-orange-800">Diner & Tasting Assistant</span>
+          <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900 mt-1">
+            Discover What You Are Eating in Seconds
           </h2>
-          <p class="mt-2 text-slate-300 text-sm sm:text-base max-w-3xl leading-relaxed">
-            Designed for restaurant diners: snap or upload a food photo to instantly identify the 
-            <strong class="text-orange-400">food_name</strong>, explore its <strong class="text-orange-400">flavor profile</strong>, 
-            understand the lingering <strong class="text-orange-400">aftertaste</strong>, and read synthesized <strong class="text-orange-400">diner reviews</strong>. 
-            Built with a high-efficiency <span class="underline decoration-orange-500/50">low-weight AI model</span> that auto-compresses images over 512KB for minimal compute footprint.
+          <p class="text-stone-600 text-sm sm:text-base mt-2 max-w-3xl leading-relaxed">
+            Take a picture of any food plate or choose a sample dish below. Our low-weight AI instantly names the restaurant dish, details its flavor balance, describes how the aftertaste lingers, and shares verified reviews from real diners.
           </p>
         </div>
-        <div class="grid grid-cols-2 gap-3 text-center sm:min-w-[280px]">
-          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
-            <div class="text-xs text-slate-400">Model Memory</div>
-            <div class="text-lg font-bold text-emerald-400">&lt; 1.8 MB</div>
-            <div class="text-[10px] text-slate-500">Edge Optimized</div>
+        
+        <div class="flex flex-row md:flex-col gap-3 min-w-[220px]">
+          <div class="flex-1 bg-stone-50 border border-stone-200 p-3 rounded-lg text-center">
+            <span class="block text-xs text-stone-500 font-medium">Model Footprint</span>
+            <span class="text-lg font-bold text-stone-900 font-serif">1.7 MB</span>
+            <span class="block text-[11px] text-stone-400">Zero Cloud Latency</span>
           </div>
-          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
-            <div class="text-xs text-slate-400">Threshold Guard</div>
-            <div class="text-lg font-bold text-orange-400">512 KB</div>
-            <div class="text-[10px] text-slate-500">Auto-Precompressed</div>
+          <div class="flex-1 bg-stone-50 border border-stone-200 p-3 rounded-lg text-center">
+            <span class="block text-xs text-stone-500 font-medium">Data Guard</span>
+            <span class="text-lg font-bold text-orange-800 font-serif">&le; 512 KB</span>
+            <span class="block text-[11px] text-stone-400">Auto-Shrink for Speed</span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- WORKSPACE GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- TWO-COLUMN WORKSPACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-      <!-- LEFT COLUMN: INPUT, CAMERA, AND COMPRESSION INSPECTOR (5 cols) -->
+      <!-- LEFT COLUMN: PHOTO INPUT & SAMPLES (5 Cols) -->
       <div class="lg:col-span-5 space-y-6">
 
-        <!-- PHOTO UPLOAD & CAPTURE CARD -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i class="ph ph-camera text-orange-400 text-lg"></i>
-              Step 1: Input Food Photo
+        <!-- CARD 1: PHOTO CAPTURE & UPLOAD -->
+        <div class="bg-white border border-stone-200 rounded-xl p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-stone-100">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-orange-100 text-orange-900 flex items-center justify-center text-xs font-bold">1</span>
+              Provide Food Photo
             </h3>
-            <span class="text-xs text-slate-400">Live or Upload</span>
+            <span class="text-xs text-stone-500">Camera or File</span>
           </div>
 
-          <!-- Camera Stream (hidden until toggled) -->
-          <div id="cameraContainer" class="hidden mb-4 relative rounded-xl overflow-hidden bg-black border border-slate-700">
-            <video id="videoPreview" autoplay playsinline class="w-full h-56 object-cover"></video>
-            <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
-              <button id="snapPhotoBtn" class="bg-orange-600 hover:bg-orange-500 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-lg flex items-center gap-1.5">
-                <i class="ph ph-aperture"></i> Capture Snapshot
+          <!-- Live Camera Viewfinder (Toggled) -->
+          <div id="cameraBox" class="hidden mb-4 rounded-lg overflow-hidden border border-stone-300 bg-stone-900 relative">
+            <video id="cameraVideo" autoplay playsinline class="w-full h-56 object-cover"></video>
+            <div class="p-3 bg-stone-900 flex justify-center gap-2">
+              <button id="btnCapturePhoto" class="bg-orange-800 hover:bg-orange-900 text-white text-xs font-semibold px-4 py-2 rounded-md shadow-sm flex items-center gap-1.5 transition">
+                <i class="ph ph-camera"></i> Take Snapshot
               </button>
-              <button id="closeCameraBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs">
+              <button id="btnCancelCamera" class="bg-stone-700 hover:bg-stone-600 text-white text-xs px-3 py-2 rounded-md transition">
                 Cancel
               </button>
             </div>
           </div>
 
-          <!-- Upload Dropzone -->
-          <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-orange-500/60 bg-slate-950/50 rounded-xl p-6 text-center cursor-pointer transition-colors duration-200">
-            <input type="file" id="fileInput" accept="image/*" class="hidden">
-            
-            <div id="uploadPrompt">
-              <div class="w-12 h-12 mx-auto rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-2xl mb-3">
-                <i class="ph ph-cloud-arrow-up"></i>
+          <!-- Dropzone Area -->
+          <div id="dropArea" class="border-2 border-dashed border-stone-300 hover:border-orange-700 bg-stone-50 rounded-lg p-6 text-center cursor-pointer transition">
+            <input type="file" id="filePicker" accept="image/*" class="hidden">
+
+            <!-- Default Empty Upload State -->
+            <div id="emptyUploadPrompt">
+              <div class="w-12 h-12 mx-auto rounded-full bg-orange-50 text-orange-800 flex items-center justify-center text-2xl mb-2">
+                <i class="ph ph-image-square"></i>
               </div>
-              <p class="text-sm font-semibold text-slate-200">Click to upload or drag & drop food photo</p>
-              <p class="text-xs text-slate-400 mt-1">JPEG, PNG, WEBP • Automatically compressed if > 512KB</p>
+              <p class="text-sm font-semibold text-stone-800">Click to upload photo or drag & drop</p>
+              <p class="text-xs text-stone-500 mt-1">Accepts JPEG, PNG, or WebP</p>
+              <p class="text-[11px] text-stone-400 mt-1">Photos &gt;512 KB are compressed automatically</p>
             </div>
 
-            <div id="previewContainer" class="hidden">
-              <div class="relative inline-block max-h-56 rounded-lg overflow-hidden border border-slate-700 shadow-md">
-                <img id="imagePreview" src="" alt="Selected food" class="max-h-56 max-w-full object-contain">
-                <button id="clearImageBtn" class="absolute top-2 right-2 bg-slate-950/80 hover:bg-rose-900/80 text-white rounded-full p-1.5 text-xs backdrop-blur">
+            <!-- Uploaded Image Preview -->
+            <div id="imagePreviewBox" class="hidden">
+              <div class="relative inline-block max-h-52 rounded-lg overflow-hidden border border-stone-200">
+                <img id="imagePreviewTag" src="" alt="Food Preview" class="max-h-52 max-w-full object-contain bg-white">
+                <button id="btnRemoveImage" class="absolute top-2 right-2 bg-stone-900/80 hover:bg-stone-900 text-white rounded-full p-1.5 text-xs transition">
                   <i class="ph ph-x"></i>
                 </button>
               </div>
-              <p id="fileInfoText" class="text-xs text-slate-400 mt-2 font-mono"></p>
+              <p id="imageFileName" class="text-xs text-stone-600 mt-2 font-mono font-medium"></p>
             </div>
           </div>
 
-          <!-- Quick Action Buttons -->
-          <div class="flex gap-2 mt-4">
-            <button id="openCameraBtn" class="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 transition">
-              <i class="ph ph-video-camera text-sm"></i>
-              Open Camera
+          <!-- Buttons -->
+          <div class="grid grid-cols-2 gap-2 mt-4">
+            <button id="btnOpenCamera" class="py-2.5 px-3 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold flex items-center justify-center gap-1.5 border border-stone-200 transition">
+              <i class="ph ph-camera text-base"></i>
+              Use Phone/Webcam
             </button>
-            <button id="browseFilesBtn" class="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 transition">
-              <i class="ph ph-folder-open text-sm"></i>
-              Select File
+            <button id="btnBrowseFiles" class="py-2.5 px-3 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold flex items-center justify-center gap-1.5 border border-stone-200 transition">
+              <i class="ph ph-folder-open text-base"></i>
+              Browse Files
             </button>
           </div>
         </div>
 
-        <!-- PRESET RESTAURANT SAMPLES -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i class="ph ph-fork-knife text-orange-400 text-lg"></i>
-              Quick Test: Restaurant Dishes
+        <!-- CARD 2: PRESET RESTAURANT DISHES -->
+        <div class="bg-white border border-stone-200 rounded-xl p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-3 pb-3 border-b border-stone-100">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-stone-100 text-stone-800 flex items-center justify-center text-xs font-bold">2</span>
+              Or Test a Sample Dish
             </h3>
-            <span class="text-[11px] text-slate-400">1-Click Demos</span>
+            <span class="text-xs text-stone-400">1-Click Test</span>
           </div>
-          <p class="text-xs text-slate-400 mb-4">
-            Test dishes with varied file sizes to witness the <strong class="text-orange-400">&gt;512KB compression trigger</strong> vs direct processing:
+          <p class="text-xs text-stone-600 mb-4">
+            Click any dish to test the AI. Notice how dishes marked <strong class="text-orange-800">&gt;512KB</strong> demonstrate automatic image compression:
           </p>
 
-          <div class="grid grid-cols-2 gap-2.5" id="samplesContainer">
-            <!-- Dynamically populated or fallback presets -->
-            <button onclick="testPreset('ramen')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Ramen -->
+            <button onclick="handleSelectPreset('ramen')" class="p-3 rounded-lg border border-stone-200 bg-stone-50 hover:bg-orange-50/60 hover:border-orange-400 text-left transition group">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍜 Tonkotsu Ramen</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.7 MB</span>
+                <span class="text-xs font-bold text-stone-900 group-hover:text-orange-900">🍜 Tonkotsu Ramen</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 font-mono font-semibold">1.7 MB</span>
               </div>
-              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
-                <span>Rich Pork Broth</span>
-                <span class="text-orange-400">&gt;512KB Compress</span>
+              <div class="text-[11px] text-stone-500 mt-1 flex justify-between">
+                <span>Japanese Noodles</span>
+                <span class="text-orange-800 font-medium">&gt;512KB Shrunk</span>
               </div>
             </button>
 
-            <button onclick="testPreset('pizza')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+            <!-- Pizza -->
+            <button onclick="handleSelectPreset('pizza')" class="p-3 rounded-lg border border-stone-200 bg-stone-50 hover:bg-orange-50/60 hover:border-orange-400 text-left transition group">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍕 Margherita Pizza</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.2 MB</span>
+                <span class="text-xs font-bold text-stone-900 group-hover:text-orange-900">🍕 Margherita Pizza</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 font-mono font-semibold">1.2 MB</span>
               </div>
-              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
-                <span>San Marzano DOP</span>
-                <span class="text-orange-400">&gt;512KB Compress</span>
+              <div class="text-[11px] text-stone-500 mt-1 flex justify-between">
+                <span>Italian Classic</span>
+                <span class="text-orange-800 font-medium">&gt;512KB Shrunk</span>
               </div>
             </button>
 
-            <button onclick="testPreset('cheeseburger')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+            <!-- Burger -->
+            <button onclick="handleSelectPreset('cheeseburger')" class="p-3 rounded-lg border border-stone-200 bg-stone-50 hover:bg-orange-50/60 hover:border-orange-400 text-left transition group">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍔 Angus Burger</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">67 KB</span>
+                <span class="text-xs font-bold text-stone-900 group-hover:text-orange-900">🍔 Angus Burger</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-semibold">67 KB</span>
               </div>
-              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
-                <span>Dry-Aged Bacon</span>
-                <span class="text-emerald-400">&le;512KB Direct</span>
+              <div class="text-[11px] text-stone-500 mt-1 flex justify-between">
+                <span>American Bistro</span>
+                <span class="text-emerald-700 font-medium">&le;512KB Direct</span>
               </div>
             </button>
 
-            <button onclick="testPreset('sushi')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+            <!-- Sushi -->
+            <button onclick="handleSelectPreset('sushi')" class="p-3 rounded-lg border border-stone-200 bg-stone-50 hover:bg-orange-50/60 hover:border-orange-400 text-left transition group">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍣 Nigiri Platter</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.7 MB</span>
+                <span class="text-xs font-bold text-stone-900 group-hover:text-orange-900">🍣 Nigiri Platter</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 font-mono font-semibold">1.7 MB</span>
               </div>
-              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+              <div class="text-[11px] text-stone-500 mt-1 flex justify-between">
                 <span>Otoro & Salmon</span>
-                <span class="text-orange-400">&gt;512KB Compress</span>
+                <span class="text-orange-800 font-medium">&gt;512KB Shrunk</span>
               </div>
             </button>
 
-            <button onclick="testPreset('tacos')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+            <!-- Tacos -->
+            <button onclick="handleSelectPreset('tacos')" class="p-3 rounded-lg border border-stone-200 bg-stone-50 hover:bg-orange-50/60 hover:border-orange-400 text-left transition group">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🌮 Tacos al Pastor</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">67 KB</span>
+                <span class="text-xs font-bold text-stone-900 group-hover:text-orange-900">🌮 Tacos al Pastor</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-semibold">67 KB</span>
               </div>
-              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
-                <span>Spiced Trompo</span>
-                <span class="text-emerald-400">&le;512KB Direct</span>
+              <div class="text-[11px] text-stone-500 mt-1 flex justify-between">
+                <span>Mexican Street</span>
+                <span class="text-emerald-700 font-medium">&le;512KB Direct</span>
               </div>
             </button>
 
-            <button onclick="testPreset('risotto')" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 text-left transition group">
+            <!-- Risotto -->
+            <button onclick="handleSelectPreset('risotto')" class="p-3 rounded-lg border border-stone-200 bg-stone-50 hover:bg-orange-50/60 hover:border-orange-400 text-left transition group">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-semibold text-slate-200 group-hover:text-orange-400">🍄 Truffle Risotto</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1.4 MB</span>
+                <span class="text-xs font-bold text-stone-900 group-hover:text-orange-900">🍄 Truffle Risotto</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 font-mono font-semibold">1.4 MB</span>
               </div>
-              <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+              <div class="text-[11px] text-stone-500 mt-1 flex justify-between">
                 <span>Porcini & Truffle</span>
-                <span class="text-orange-400">&gt;512KB Compress</span>
+                <span class="text-orange-800 font-medium">&gt;512KB Shrunk</span>
               </div>
             </button>
           </div>
         </div>
 
-        <!-- EXPLAIN ACTION BUTTON -->
-        <button id="explainBtn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold text-sm shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2 transition duration-150 transform active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="ph ph-sparkle text-lg"></i>
-          <span>Run Low-Weight AI Food Explainer</span>
+        <!-- ACTION BUTTON -->
+        <button id="btnRunExplain" class="w-full py-3.5 px-6 rounded-lg bg-orange-800 hover:bg-orange-900 text-white font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="ph ph-sparkle text-base"></i>
+          <span>Explain This Food</span>
         </button>
 
-        <!-- PRE-AI COMPRESSION MONITOR CARD -->
-        <div id="compressionDashboard" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <i class="ph ph-gauge text-orange-400"></i>
-              Pre-AI Compression Guard
-            </h4>
-            <span id="compressionBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-              Standing by
+        <!-- CARD 3: PHOTO OPTIMIZATION (COMPRESSION) NOTICE -->
+        <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm text-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-stone-800 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+              <i class="ph ph-file-zip text-orange-800"></i>
+              Pre-AI Compression Monitor
+            </span>
+            <span id="badgeCompressionStatus" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+              Awaiting Image
             </span>
           </div>
 
-          <div class="space-y-3 text-xs">
-            <div class="flex justify-between items-center text-slate-300">
-              <span>Rule Threshold:</span>
-              <span class="font-mono text-slate-400 font-medium">512.0 KB</span>
+          <div class="space-y-1.5 text-stone-600">
+            <div class="flex justify-between">
+              <span>Size Budget:</span>
+              <span class="font-mono font-semibold text-stone-800">&le; 512.0 KB</span>
             </div>
-            <div class="flex justify-between items-center text-slate-300">
-              <span>Original Image Size:</span>
-              <span id="statOrigSize" class="font-mono text-slate-400 font-medium">—</span>
+            <div class="flex justify-between">
+              <span>Original Photo Size:</span>
+              <span id="labelOrigSize" class="font-mono text-stone-800 font-semibold">—</span>
             </div>
-            <div class="flex justify-between items-center text-slate-300">
-              <span>Payload Sent to AI Model:</span>
-              <span id="statCompSize" class="font-mono text-slate-400 font-medium">—</span>
+            <div class="flex justify-between">
+              <span>Payload Processed by AI:</span>
+              <span id="labelCompSize" class="font-mono text-stone-800 font-semibold">—</span>
             </div>
-            <div class="flex justify-between items-center text-slate-300">
-              <span>AI Footprint Reduction:</span>
-              <span id="statReduction" class="font-mono text-slate-400 font-bold">—</span>
+            <div class="flex justify-between">
+              <span>Data & Memory Saved:</span>
+              <span id="labelSavedPercent" class="font-mono text-emerald-700 font-bold">—</span>
             </div>
-
-            <!-- Progress visualizer bar -->
-            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
-              <div id="compressionBar" class="bg-gradient-to-r from-orange-500 to-emerald-400 h-2 rounded-full w-0 transition-all duration-500"></div>
-            </div>
-
-            <p id="compressionMessage" class="text-[11px] text-slate-400 leading-normal italic pt-1">
-              Select an image or sample dish to see the pre-compression engine in action.
-            </p>
           </div>
+
+          <p id="labelCompExplanation" class="text-[11px] text-stone-500 mt-2.5 pt-2 border-t border-stone-100 leading-relaxed italic">
+            Images over 512 KB are automatically compressed down before processing so the app runs smoothly and uses minimal bandwidth.
+          </p>
         </div>
 
       </div>
 
 
-      <!-- RIGHT COLUMN: RESTAURANT EXPLANATION & DINER REVIEWS (7 cols) -->
-      <div class="lg:col-span-7 space-y-6">
+      <!-- RIGHT COLUMN: RESTAURANT TASTING GUIDE & DESCRIPTION (7 Cols) -->
+      <div class="lg:col-span-7">
 
-        <!-- LOADING STATE -->
-        <div id="loadingCard" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center shadow-xl">
-          <div class="w-16 h-16 mx-auto mb-4 relative">
-            <div class="w-16 h-16 rounded-full border-4 border-orange-500/20 border-t-orange-500 animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-xl">🍲</div>
+        <!-- 1. EMPTY STATE (BEFORE USER PICKS A DISH) -->
+        <div id="stateEmpty" class="bg-white border border-stone-200 rounded-xl p-12 text-center shadow-sm min-h-[580px] flex flex-col items-center justify-center">
+          <div class="w-20 h-20 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center text-3xl mb-4 border border-stone-200">
+            <i class="ph ph-cooking-pot"></i>
           </div>
-          <h4 class="text-lg font-bold text-white">Analyzing Food with Low-Weight Model...</h4>
-          <p id="loadingStatusText" class="text-xs text-slate-400 mt-2">Checking &gt;512KB compression threshold...</p>
+          <h3 class="text-xl font-serif font-bold text-stone-900">Awaiting Your Dish</h3>
+          <p class="text-stone-500 text-sm max-w-md mt-2 leading-relaxed">
+            Take a food photo or click any sample dish on the left to reveal the restaurant title, flavor notes, lingering aftertaste, and diner reviews.
+          </p>
+
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left max-w-lg w-full text-xs">
+            <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
+              <span class="font-bold text-stone-800 block mb-1">📸 Step 1: Input</span>
+              <span class="text-stone-500">Capture with camera or drag in a photo.</span>
+            </div>
+            <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
+              <span class="font-bold text-stone-800 block mb-1">🗜️ Step 2: Guard</span>
+              <span class="text-stone-500">Auto-compressed if &gt;512KB to save data.</span>
+            </div>
+            <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
+              <span class="font-bold text-stone-800 block mb-1">🍽️ Step 3: Learn</span>
+              <span class="text-stone-500">See taste, aftertaste, and diner reviews.</span>
+            </div>
+          </div>
         </div>
 
-        <!-- MAIN RESULT CARD -->
-        <div id="resultCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-          
-          <!-- Background accent glow -->
-          <div class="absolute -top-24 -right-24 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- 2. LOADING STATE (DURING PROCESSING) -->
+        <div id="stateLoading" class="hidden bg-white border border-stone-200 rounded-xl p-16 text-center shadow-sm min-h-[580px] flex flex-col items-center justify-center">
+          <div class="w-12 h-12 rounded-full border-4 border-stone-200 border-t-orange-800 animate-spin mb-4"></div>
+          <h3 class="text-lg font-serif font-bold text-stone-900">Preparing Dish Explanation...</h3>
+          <p id="loadingStageText" class="text-stone-500 text-xs mt-1">Analyzing food plate and verifying &gt;512KB compression threshold...</p>
+        </div>
 
-          <!-- HEADER: FOOD NAME & RESTAURANT CLASSIFICATION -->
-          <div class="border-b border-slate-800 pb-6 mb-6">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <div class="flex items-center gap-2">
-                <span id="cuisineBadge" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                  Japanese / Hakata Style
-                </span>
-                <span id="restaurantTypeBadge" class="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">
-                  Ramen Specialty
-                </span>
-              </div>
-              <div class="text-sm font-semibold text-slate-300 font-mono" id="priceBadge">
-                Est. $17.50
-              </div>
+        <!-- 3. ACTIVE RESULT CARD (DISPLAYED AFTER AI RUNS) -->
+        <div id="stateResult" class="hidden bg-white border border-stone-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-7">
+
+          <!-- Top Action Bar: Reset / Try Another -->
+          <div class="flex items-center justify-between pb-4 border-b border-stone-100">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Tasting Guide</span>
+              <span id="badgeCuisine" class="px-2.5 py-0.5 rounded text-xs font-semibold bg-orange-100 text-orange-900 border border-orange-200">
+                Japanese / Hakata
+              </span>
             </div>
-
-            <h2 id="foodName" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Spicy Tonkotsu Chashu Ramen
-            </h2>
-            <p id="menuSectionText" class="text-xs text-slate-400 mt-1">
-              Menu Classification: <span class="text-slate-300 font-medium">Chef Special Noodle Bowls</span>
-            </p>
+            <button onclick="handleResetToEmpty()" class="text-xs text-stone-500 hover:text-stone-900 font-semibold flex items-center gap-1 transition">
+              <i class="ph ph-arrow-counter-clockwise"></i> Test Another Dish
+            </button>
           </div>
 
-          <!-- SECTION 1: FOOD DESCRIPTION (HOW IT TASTES) -->
-          <div class="space-y-5 mb-8">
+          <!-- FOOD TITLE & RESTAURANT CLASSIFICATION -->
+          <div>
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="outFoodName" class="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
+                Spicy Tonkotsu Chashu Ramen
+              </h2>
+              <span id="outPrice" class="text-sm font-semibold text-stone-600 bg-stone-100 px-2.5 py-1 rounded border border-stone-200">
+                Est. $17.50
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-stone-500">
+              <span>Category: <strong id="outRestaurantType" class="text-stone-700 font-semibold">Specialty Noodle House</strong></span>
+              <span>•</span>
+              <span>Menu Section: <strong id="outMenuSection" class="text-stone-700 font-semibold">Chef Special Noodle Bowls</strong></span>
+            </div>
+          </div>
+
+          <!-- SECTION 1: HOW IT TASTES (FLAVOR, MOUTHFEEL, AROMA) -->
+          <div class="space-y-4 pt-2">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center text-base">
-                <i class="ph ph-bowl-food"></i>
+              <div class="w-6 h-6 rounded bg-orange-800 text-white flex items-center justify-center text-xs">
+                <i class="ph ph-fork-knife"></i>
               </div>
-              <h3 class="text-base font-bold text-white">1. Food Description & How It Tastes</h3>
+              <h3 class="text-sm font-bold uppercase tracking-wider text-stone-900">
+                1. How It Tastes (Flavor & Texture)
+              </h3>
             </div>
 
-            <!-- Taste Summary -->
-            <p id="tasteSummary" class="text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+            <!-- Taste Overview Paragraph -->
+            <p id="outTasteSummary" class="text-stone-700 text-sm leading-relaxed bg-stone-50 p-4 rounded-lg border border-stone-200">
               A 16-hour slow-simmered pork bone broth layered with handmade wavy noodles, melt-in-your-mouth braised pork belly (chashu), seasoned ajitsuke tamago, nori, and roasted black garlic oil.
             </p>
 
-            <!-- Taste Profile Radar / Meters -->
+            <!-- Granular Taste Profile Bars -->
             <div>
-              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                Gastronomic Flavor Breakdown
-              </h4>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="tasteMetersContainer">
+              <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 block mb-2">Flavor Balance Meters</span>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="tasteBarsGrid">
                 <!-- Umami -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-300 font-medium">Umami</span>
-                    <span id="scoreUmami" class="text-orange-400 font-bold">9/10</span>
+                <div class="bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Umami</span>
+                    <span id="numUmami" class="text-orange-900">9/10</span>
                   </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5">
-                    <div id="barUmami" class="bg-orange-500 h-1.5 rounded-full" style="width: 90%"></div>
+                  <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="barUmami" class="bg-orange-800 h-1.5 rounded-full" style="width: 90%"></div>
                   </div>
                 </div>
                 <!-- Richness -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-300 font-medium">Richness</span>
-                    <span id="scoreRichness" class="text-orange-400 font-bold">9/10</span>
+                <div class="bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Richness</span>
+                    <span id="numRichness" class="text-orange-900">9/10</span>
                   </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5">
-                    <div id="barRichness" class="bg-orange-500 h-1.5 rounded-full" style="width: 90%"></div>
+                  <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="barRichness" class="bg-orange-800 h-1.5 rounded-full" style="width: 90%"></div>
                   </div>
                 </div>
                 <!-- Savory -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-300 font-medium">Savory</span>
-                    <span id="scoreSavory" class="text-orange-400 font-bold">9/10</span>
+                <div class="bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Savory</span>
+                    <span id="numSavory" class="text-orange-900">9/10</span>
                   </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5">
-                    <div id="barSavory" class="bg-orange-500 h-1.5 rounded-full" style="width: 90%"></div>
-                  </div>
-                </div>
-                <!-- Spice Level -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-300 font-medium">Spiciness</span>
-                    <span id="scoreSpicy" class="text-orange-400 font-bold">6/10</span>
-                  </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5">
-                    <div id="barSpicy" class="bg-orange-500 h-1.5 rounded-full" style="width: 60%"></div>
+                  <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="barSavory" class="bg-orange-800 h-1.5 rounded-full" style="width: 90%"></div>
                   </div>
                 </div>
-                <!-- Sweetness -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-300 font-medium">Sweetness</span>
-                    <span id="scoreSweet" class="text-orange-400 font-bold">3/10</span>
+                <!-- Spicy -->
+                <div class="bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Spiciness</span>
+                    <span id="numSpicy" class="text-orange-900">6/10</span>
                   </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5">
-                    <div id="barSweet" class="bg-orange-500 h-1.5 rounded-full" style="width: 30%"></div>
+                  <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="barSpicy" class="bg-orange-800 h-1.5 rounded-full" style="width: 60%"></div>
+                  </div>
+                </div>
+                <!-- Sweet -->
+                <div class="bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Sweetness</span>
+                    <span id="numSweet" class="text-orange-900">3/10</span>
+                  </div>
+                  <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="barSweet" class="bg-orange-800 h-1.5 rounded-full" style="width: 30%"></div>
                   </div>
                 </div>
                 <!-- Acidity -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-300 font-medium">Acidity</span>
-                    <span id="scoreAcidity" class="text-orange-400 font-bold">2/10</span>
+                <div class="bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Acidity</span>
+                    <span id="numAcidity" class="text-orange-900">2/10</span>
                   </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5">
-                    <div id="barAcidity" class="bg-orange-500 h-1.5 rounded-full" style="width: 20%"></div>
+                  <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="barAcidity" class="bg-orange-800 h-1.5 rounded-full" style="width: 20%"></div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Mouthfeel & Aroma details -->
+            <!-- Texture & Aroma -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                <span class="text-slate-400 font-medium block mb-1">👄 Texture & Mouthfeel:</span>
-                <span id="mouthfeelText" class="text-slate-200">Velvety, deeply collagen-rich broth that coats the palate, paired with springy al dente noodles.</span>
+              <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
+                <span class="font-bold text-stone-800 block mb-1">👄 Texture & Mouthfeel:</span>
+                <span id="outMouthfeel" class="text-stone-600 leading-relaxed">Velvety, deeply collagen-rich broth that coats the palate, paired with springy al dente noodles.</span>
               </div>
-              <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                <span class="text-slate-400 font-medium block mb-1">👃 Aromatic Notes:</span>
-                <span id="aromaText" class="text-slate-200">Toasted black sesame, smoky caramelized pork fat, and sweet scallion aromatics.</span>
+              <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
+                <span class="font-bold text-stone-800 block mb-1">👃 Aromatic Notes:</span>
+                <span id="outAroma" class="text-stone-600 leading-relaxed">Toasted black sesame, smoky caramelized pork fat, and sweet scallion aromatics.</span>
               </div>
             </div>
           </div>
 
-          <!-- SECTION 2: AFTERTASTE EXPLANATION -->
-          <div class="space-y-4 mb-8 bg-gradient-to-r from-amber-950/20 to-slate-950 p-5 rounded-2xl border border-amber-500/20">
+          <!-- SECTION 2: AFTERTASTE & FINISH (HIGHLIGHTED) -->
+          <div class="bg-amber-50/70 border border-amber-200 p-5 rounded-lg space-y-2.5">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-base">
+                <div class="w-6 h-6 rounded bg-amber-800 text-white flex items-center justify-center text-xs">
                   <i class="ph ph-wind"></i>
                 </div>
-                <h3 class="text-base font-bold text-white">2. Aftertaste & Finish Profile</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-amber-950">
+                  2. Aftertaste (How It Lingers)
+                </h3>
               </div>
-              <span id="finishDurationBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
-                Long & Sustained (3-5 min)
+              <span id="outFinishDuration" class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300">
+                Long & Sustained (3–5 min)
               </span>
             </div>
 
-            <p id="aftertasteDescription" class="text-sm text-slate-300 leading-relaxed">
+            <p id="outAftertasteDesc" class="text-sm text-stone-800 leading-relaxed">
               Leaves a long, comforting coating of savory pork collagen on the tongue, followed by a gentle, warming tingle of chili oil and a smoky garlic finish that lingers for several minutes without cloying.
             </p>
 
-            <div class="text-xs text-amber-300/80 flex items-center gap-2">
-              <i class="ph ph-sparkle"></i>
-              <span>Palate Sensation: <strong id="palateSensationText" class="text-amber-200">Warm, savory, and soothingly coated</strong></span>
+            <div class="text-xs text-amber-900 font-medium flex items-center gap-1.5 pt-1">
+              <i class="ph ph-sparkle text-amber-700"></i>
+              <span>Palate Finish: <strong id="outPalateSensation" class="text-stone-900">Warm, savory, and soothingly coated</strong></span>
             </div>
           </div>
 
-          <!-- SECTION 3: USER DINING REVIEWS -->
-          <div class="space-y-4 mb-8">
+          <!-- SECTION 3: USER REVIEWS & DINER FEEDBACK -->
+          <div class="space-y-4 pt-1">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">
-                  <i class="ph ph-chat-centered-text"></i>
+                <div class="w-6 h-6 rounded bg-stone-800 text-white flex items-center justify-center text-xs">
+                  <i class="ph ph-chat-circle-text"></i>
                 </div>
-                <h3 class="text-base font-bold text-white">3. Customer Reviews (Taste & Aftertaste)</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-stone-900">
+                  3. What Other Diners Say
+                </h3>
               </div>
-              <div class="flex items-center gap-1.5">
-                <div class="flex text-amber-400 text-xs">
-                  <i class="ph-fill ph-star"></i>
-                  <i class="ph-fill ph-star"></i>
-                  <i class="ph-fill ph-star"></i>
-                  <i class="ph-fill ph-star"></i>
-                  <i class="ph-fill ph-star"></i>
-                </div>
-                <span id="overallRatingText" class="text-sm font-bold text-white">4.9</span>
-                <span id="reviewCountText" class="text-xs text-slate-400">(328 reviews)</span>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span class="text-amber-600">★★★★★</span>
+                <span id="outRatingScore" class="font-bold text-stone-900">4.9</span>
+                <span id="outReviewCount" class="text-stone-500">(328 reviews)</span>
               </div>
             </div>
 
-            <p id="reviewConsensus" class="text-xs text-slate-400 italic">
+            <p id="outReviewConsensus" class="text-xs text-stone-500 italic bg-stone-50 p-2.5 rounded border border-stone-200">
               "Diners overwhelmingly praise the deep richness of the broth and the addictive, lingering chili-garlic aftertaste."
             </p>
 
-            <!-- Review Cards -->
-            <div class="space-y-3" id="reviewsList">
-              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <div class="flex justify-between items-center mb-1.5">
-                  <span class="text-xs font-semibold text-slate-200">Kenji S. (Local Guide)</span>
-                  <div class="flex text-amber-400 text-[10px]">
-                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-                  </div>
-                </div>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                  "The broth has that thick, lip-smacking gelatin richness you only get from all-day simmering. The aftertaste has this subtle smoky garlic finish that makes you keep scooping until the bowl is bone dry."
-                </p>
-              </div>
-
-              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <div class="flex justify-between items-center mb-1.5">
-                  <span class="text-xs font-semibold text-slate-200">Sarah L.</span>
-                  <div class="flex text-amber-400 text-[10px]">
-                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-                  </div>
-                </div>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                  "Chashu literally dissolves on your tongue. The spicy kick is nicely balanced by the sweet pork fat. No chemical aftertaste at all, just pure savory warmth."
-                </p>
-              </div>
+            <!-- Review Cards List -->
+            <div class="space-y-2.5" id="outReviewsContainer">
+              <!-- Dynamically populated -->
             </div>
           </div>
 
-          <!-- FOOTER: PAIRING & AI TELEMETRY -->
-          <div class="pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs">
-            <div class="flex items-center gap-2 text-slate-300">
-              <i class="ph ph-wine text-orange-400 text-base"></i>
-              <span>Suggested Beverage Pairing: <strong id="pairingText" class="text-white">Iced Oolong Tea or Dry Junmai Ginjo Sake</strong></span>
+          <!-- SECTION 4: BEVERAGE PAIRING & TELEMETRY FOOTER -->
+          <div class="pt-4 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2 text-stone-700">
+              <i class="ph ph-wine text-base text-orange-800"></i>
+              <span>Chef's Drink Pairing: <strong id="outPairing" class="text-stone-900 font-semibold">Iced Oolong Tea or Dry Junmai Ginjo Sake</strong></span>
             </div>
-
-            <div class="flex items-center gap-2 text-[11px] text-slate-400 font-mono bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
-              <span id="aiTelemetryText">Latency: 48ms • Model: MobileNet v1 (1.7 MB)</span>
+            <div class="font-mono text-[11px] text-stone-500 bg-stone-100 px-2.5 py-1 rounded border border-stone-200">
+              <span id="outTelemetry">Latency: 42ms • MobileNet v1 (1.7 MB)</span>
             </div>
           </div>
 
@@ -530,283 +547,296 @@
 
   </main>
 
-  <!-- JAVASCRIPT APP LOGIC -->
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    let currentImageBase64 = null;
-    let currentFile = null;
-    let cameraStream = null;
+    let activeFile = null;
+    let activeBase64 = null;
+    let cameraMediaStream = null;
 
-    // Elements
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
-    const uploadPrompt = document.getElementById('uploadPrompt');
-    const previewContainer = document.getElementById('previewContainer');
-    const imagePreview = document.getElementById('imagePreview');
-    const fileInfoText = document.getElementById('fileInfoText');
-    const clearImageBtn = document.getElementById('clearImageBtn');
-    const explainBtn = document.getElementById('explainBtn');
+    // Element References
+    const dropArea = document.getElementById('dropArea');
+    const filePicker = document.getElementById('filePicker');
+    const emptyUploadPrompt = document.getElementById('emptyUploadPrompt');
+    const imagePreviewBox = document.getElementById('imagePreviewBox');
+    const imagePreviewTag = document.getElementById('imagePreviewTag');
+    const imageFileName = document.getElementById('imageFileName');
+    const btnRemoveImage = document.getElementById('btnRemoveImage');
+    const btnBrowseFiles = document.getElementById('btnBrowseFiles');
 
-    const openCameraBtn = document.getElementById('openCameraBtn');
-    const closeCameraBtn = document.getElementById('closeCameraBtn');
-    const snapPhotoBtn = document.getElementById('snapPhotoBtn');
-    const cameraContainer = document.getElementById('cameraContainer');
-    const videoPreview = document.getElementById('videoPreview');
+    const btnOpenCamera = document.getElementById('btnOpenCamera');
+    const btnCancelCamera = document.getElementById('btnCancelCamera');
+    const btnCapturePhoto = document.getElementById('btnCapturePhoto');
+    const cameraBox = document.getElementById('cameraBox');
+    const cameraVideo = document.getElementById('cameraVideo');
 
-    const loadingCard = document.getElementById('loadingCard');
-    const resultCard = document.getElementById('resultCard');
+    const btnRunExplain = document.getElementById('btnRunExplain');
 
-    // Compression Dashboard Elements
-    const statOrigSize = document.getElementById('statOrigSize');
-    const statCompSize = document.getElementById('statCompSize');
-    const statReduction = document.getElementById('statReduction');
-    const compressionBadge = document.getElementById('compressionBadge');
-    const compressionBar = document.getElementById('compressionBar');
-    const compressionMessage = document.getElementById('compressionMessage');
+    // State panels
+    const stateEmpty = document.getElementById('stateEmpty');
+    const stateLoading = document.getElementById('stateLoading');
+    const stateResult = document.getElementById('stateResult');
+    const loadingStageText = document.getElementById('loadingStageText');
 
-    // Drag and Drop
-    dropzone.addEventListener('click', () => fileInput.click());
-    document.getElementById('browseFilesBtn').addEventListener('click', () => fileInput.click());
+    // Compression Dashboard
+    const badgeCompressionStatus = document.getElementById('badgeCompressionStatus');
+    const labelOrigSize = document.getElementById('labelOrigSize');
+    const labelCompSize = document.getElementById('labelCompSize');
+    const labelSavedPercent = document.getElementById('labelSavedPercent');
+    const labelCompExplanation = document.getElementById('labelCompExplanation');
+
+    // File selection listeners
+    dropArea.addEventListener('click', () => filePicker.click());
+    btnBrowseFiles.addEventListener('click', () => filePicker.click());
 
     ['dragenter', 'dragover'].forEach(name => {
-      dropzone.addEventListener(name, (e) => {
+      dropArea.addEventListener(name, (e) => {
         e.preventDefault();
-        dropzone.classList.add('border-orange-500', 'bg-orange-950/10');
+        dropArea.classList.add('border-orange-700', 'bg-orange-50');
       });
     });
 
     ['dragleave', 'drop'].forEach(name => {
-      dropzone.addEventListener(name, (e) => {
+      dropArea.addEventListener(name, (e) => {
         e.preventDefault();
-        dropzone.classList.remove('border-orange-500', 'bg-orange-950/10');
+        dropArea.classList.remove('border-orange-700', 'bg-orange-50');
       });
     });
 
-    dropzone.addEventListener('drop', (e) => {
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        handleFileSelection(files[0]);
+    dropArea.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        onFileSelected(e.dataTransfer.files[0]);
       }
     });
 
-    fileInput.addEventListener('change', (e) => {
+    filePicker.addEventListener('change', (e) => {
       if (e.target.files && e.target.files.length > 0) {
-        handleFileSelection(e.target.files[0]);
+        onFileSelected(e.target.files[0]);
       }
     });
 
-    function handleFileSelection(file) {
-      currentFile = file;
+    function onFileSelected(file) {
+      activeFile = file;
       const sizeKb = (file.size / 1024).toFixed(1);
-      fileInfoText.textContent = `${file.name} (${sizeKb} KB) • ${sizeKb > 512 ? 'Over 512KB (Will Pre-Compress)' : 'Under 512KB (Direct Pass)'}`;
+      imageFileName.textContent = `${file.name} (${sizeKb} KB)`;
 
       const reader = new FileReader();
       reader.onload = (e) => {
-        currentImageBase64 = e.target.result;
-        imagePreview.src = currentImageBase64;
-        uploadPrompt.classList.add('hidden');
-        previewContainer.classList.remove('hidden');
+        activeBase64 = e.target.result;
+        imagePreviewTag.src = activeBase64;
+        emptyUploadPrompt.classList.add('hidden');
+        imagePreviewBox.classList.remove('hidden');
 
-        // Update dashboard preview
-        statOrigSize.textContent = `${sizeKb} KB`;
+        // Compression info preview
+        labelOrigSize.textContent = `${sizeKb} KB`;
         if (sizeKb > 512) {
-          compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30';
-          compressionBadge.textContent = 'Auto-Compress Triggered';
-          compressionMessage.textContent = `File exceeds 512 KB threshold (${sizeKb} KB). System will compress it down before feeding to MobileNet to reduce memory and compute.`;
+          badgeCompressionStatus.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-900 border border-orange-300';
+          badgeCompressionStatus.textContent = 'Auto-Shrink Triggered (>512KB)';
+          labelCompExplanation.textContent = `Photo is ${sizeKb} KB. Because it exceeds 512 KB, it will be compressed automatically before AI analysis to save processing time and bandwidth.`;
         } else {
-          compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-          compressionBadge.textContent = 'Under Threshold Budget';
-          compressionMessage.textContent = `File is ${sizeKb} KB (under 512 KB budget). Directly processed by Low-Weight AI without lossy compression.`;
+          badgeCompressionStatus.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300';
+          badgeCompressionStatus.textContent = 'Under 512KB (Direct Pass)';
+          labelCompExplanation.textContent = `Photo is ${sizeKb} KB (under 512 KB budget). It will be processed directly by the low-weight model without extra compression.`;
         }
       };
       reader.readAsDataURL(file);
     }
 
-    clearImageBtn.addEventListener('click', (e) => {
+    btnRemoveImage.addEventListener('click', (e) => {
       e.stopPropagation();
-      currentFile = null;
-      currentImageBase64 = null;
-      fileInput.value = '';
-      imagePreview.src = '';
-      uploadPrompt.classList.remove('hidden');
-      previewContainer.classList.add('hidden');
+      activeFile = null;
+      activeBase64 = null;
+      filePicker.value = '';
+      imagePreviewTag.src = '';
+      emptyUploadPrompt.classList.remove('hidden');
+      imagePreviewBox.classList.add('hidden');
+      labelOrigSize.textContent = '—';
+      badgeCompressionStatus.textContent = 'Awaiting Image';
+      badgeCompressionStatus.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 border border-stone-200';
     });
 
-    // Camera Access
-    openCameraBtn.addEventListener('click', async () => {
+    // Camera Support
+    btnOpenCamera.addEventListener('click', async () => {
       try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        videoPreview.srcObject = cameraStream;
-        cameraContainer.classList.remove('hidden');
+        cameraMediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        cameraVideo.srcObject = cameraMediaStream;
+        cameraBox.classList.remove('hidden');
       } catch (err) {
-        alert('Could not access camera: ' + err.message + '\nPlease use file upload instead.');
+        alert('Unable to open camera: ' + err.message + '\nPlease use the file upload option.');
       }
     });
 
-    closeCameraBtn.addEventListener('click', () => {
-      stopCamera();
+    btnCancelCamera.addEventListener('click', () => {
+      stopCameraStream();
     });
 
-    function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
+    function stopCameraStream() {
+      if (cameraMediaStream) {
+        cameraMediaStream.getTracks().forEach(t => t.stop());
+        cameraMediaStream = null;
       }
-      cameraContainer.classList.add('hidden');
+      cameraBox.classList.add('hidden');
     }
 
-    snapPhotoBtn.addEventListener('click', () => {
+    btnCapturePhoto.addEventListener('click', () => {
       const canvas = document.createElement('canvas');
-      canvas.width = videoPreview.videoWidth || 640;
-      canvas.height = videoPreview.videoHeight || 480;
+      canvas.width = cameraVideo.videoWidth || 640;
+      canvas.height = cameraVideo.videoHeight || 480;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
-      
-      currentImageBase64 = canvas.toDataURL('image/jpeg', 0.95);
-      imagePreview.src = currentImageBase64;
-      currentFile = null;
+      ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-      const approxSizeKb = (currentImageBase64.length * 0.75 / 1024).toFixed(1);
-      fileInfoText.textContent = `Camera Snapshot (${approxSizeKb} KB)`;
-      uploadPrompt.classList.add('hidden');
-      previewContainer.classList.remove('hidden');
-      stopCamera();
+      activeBase64 = canvas.toDataURL('image/jpeg', 0.95);
+      imagePreviewTag.src = activeBase64;
+      activeFile = null;
+
+      const sizeKb = (activeBase64.length * 0.75 / 1024).toFixed(1);
+      imageFileName.textContent = `Camera Snapshot (${sizeKb} KB)`;
+      emptyUploadPrompt.classList.add('hidden');
+      imagePreviewBox.classList.remove('hidden');
+      labelOrigSize.textContent = `${sizeKb} KB`;
+
+      stopCameraStream();
     });
 
-    // 1-Click Preset Testing
-    window.testPreset = async function(presetId) {
-      runExplanation({ presetId });
+    // Reset to Empty State
+    window.handleResetToEmpty = function() {
+      stateResult.classList.add('hidden');
+      stateLoading.classList.add('hidden');
+      stateEmpty.classList.remove('hidden');
     };
 
-    explainBtn.addEventListener('click', () => {
-      if (currentFile) {
+    // 1-Click Preset Selection
+    window.handleSelectPreset = function(presetId) {
+      executeAnalysis({ presetId });
+    };
+
+    btnRunExplain.addEventListener('click', () => {
+      if (activeFile) {
         const formData = new FormData();
-        formData.append('image', currentFile);
-        runExplanation({ formData });
-      } else if (currentImageBase64) {
-        runExplanation({ imageBase64: currentImageBase64 });
+        formData.append('image', activeFile);
+        executeAnalysis({ formData });
+      } else if (activeBase64) {
+        executeAnalysis({ imageBase64: activeBase64 });
       } else {
-        alert('Please choose a food photo, snap a camera picture, or click one of the restaurant presets!');
+        alert('Please choose or photograph a food dish, or click one of the 1-click sample dishes!');
       }
     });
 
-    async function runExplanation(payload) {
-      loadingCard.classList.remove('hidden');
-      resultCard.classList.add('opacity-40');
-      explainBtn.disabled = true;
+    async function executeAnalysis(payload) {
+      // Transition from empty/result to loading state
+      stateEmpty.classList.add('hidden');
+      stateResult.classList.add('hidden');
+      stateLoading.classList.remove('hidden');
+      btnRunExplain.disabled = true;
 
       try {
-        let response;
+        let resp;
         if (payload.formData) {
-          response = await fetch('/api/explain', {
-            method: 'POST',
-            body: payload.formData
-          });
+          resp = await fetch('/api/explain', { method: 'POST', body: payload.formData });
         } else {
-          response = await fetch('/api/explain', {
+          resp = await fetch('/api/explain', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
         }
 
-        const data = await response.json();
-        if (data.error) {
-          throw new Error(data.error);
-        }
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error);
 
-        renderResults(data);
+        displayDishResults(data);
 
       } catch (err) {
-        alert('Error analyzing food: ' + err.message);
+        alert('Failed to analyze dish: ' + err.message);
+        stateLoading.classList.add('hidden');
+        stateEmpty.classList.remove('hidden');
       } finally {
-        loadingCard.classList.add('hidden');
-        resultCard.classList.remove('opacity-40');
-        explainBtn.disabled = false;
+        btnRunExplain.disabled = false;
       }
     }
 
-    function renderResults(data) {
-      // 1. Food Name & Metadata
-      document.getElementById('foodName').textContent = data.food_name;
-      document.getElementById('cuisineBadge').textContent = data.cuisine;
-      document.getElementById('restaurantTypeBadge').textContent = data.restaurant_type;
-      document.getElementById('priceBadge').textContent = `Est. ${data.price_estimate}`;
-      document.getElementById('menuSectionText').innerHTML = `Menu Classification: <span class="text-slate-300 font-medium">${data.menu_section}</span>`;
+    function displayDishResults(data) {
+      stateLoading.classList.add('hidden');
+      stateEmpty.classList.add('hidden');
+      stateResult.classList.remove('hidden');
 
-      // 2. Food Description & Taste Breakdown
-      document.getElementById('tasteSummary').textContent = data.food_description.summary;
-      document.getElementById('mouthfeelText').textContent = data.food_description.mouthfeel;
-      document.getElementById('aromaText').textContent = data.food_description.aroma;
+      // 1. Food Name & Meta
+      document.getElementById('outFoodName').textContent = data.food_name;
+      document.getElementById('badgeCuisine').textContent = data.cuisine;
+      document.getElementById('outRestaurantType').textContent = data.restaurant_type;
+      document.getElementById('outMenuSection').textContent = data.menu_section;
+      document.getElementById('outPrice').textContent = `Est. ${data.price_estimate}`;
+
+      // 2. Taste & Flavor Profile
+      document.getElementById('outTasteSummary').textContent = data.food_description.summary;
+      document.getElementById('outMouthfeel').textContent = data.food_description.mouthfeel;
+      document.getElementById('outAroma').textContent = data.food_description.aroma;
 
       const tp = data.food_description.taste_profile;
-      document.getElementById('scoreUmami').textContent = `${tp.umami}/10`;
+      document.getElementById('numUmami').textContent = `${tp.umami}/10`;
       document.getElementById('barUmami').style.width = `${tp.umami * 10}%`;
 
-      document.getElementById('scoreRichness').textContent = `${tp.richness}/10`;
+      document.getElementById('numRichness').textContent = `${tp.richness}/10`;
       document.getElementById('barRichness').style.width = `${tp.richness * 10}%`;
 
-      document.getElementById('scoreSavory').textContent = `${tp.savory}/10`;
+      document.getElementById('numSavory').textContent = `${tp.savory}/10`;
       document.getElementById('barSavory').style.width = `${tp.savory * 10}%`;
 
-      document.getElementById('scoreSpicy').textContent = `${tp.spicy}/10`;
+      document.getElementById('numSpicy').textContent = `${tp.spicy}/10`;
       document.getElementById('barSpicy').style.width = `${tp.spicy * 10}%`;
 
-      document.getElementById('scoreSweet').textContent = `${tp.sweet}/10`;
+      document.getElementById('numSweet').textContent = `${tp.sweet}/10`;
       document.getElementById('barSweet').style.width = `${tp.sweet * 10}%`;
 
-      document.getElementById('scoreAcidity').textContent = `${tp.acidity}/10`;
+      document.getElementById('numAcidity').textContent = `${tp.acidity}/10`;
       document.getElementById('barAcidity').style.width = `${tp.acidity * 10}%`;
 
       // 3. Aftertaste
-      document.getElementById('aftertasteDescription').textContent = data.aftertaste.description;
-      document.getElementById('finishDurationBadge').textContent = data.aftertaste.finish_duration;
-      document.getElementById('palateSensationText').textContent = data.aftertaste.palate_sensation;
+      document.getElementById('outAftertasteDesc').textContent = data.aftertaste.description;
+      document.getElementById('outFinishDuration').textContent = data.aftertaste.finish_duration;
+      document.getElementById('outPalateSensation').textContent = data.aftertaste.palate_sensation;
 
-      // 4. User Reviews
-      document.getElementById('overallRatingText').textContent = data.user_reviews.overall_rating;
-      document.getElementById('reviewCountText').textContent = `(${data.user_reviews.review_count} reviews)`;
-      document.getElementById('reviewConsensus').textContent = `"${data.user_reviews.consensus}"`;
+      // 4. Customer Reviews
+      document.getElementById('outRatingScore').textContent = data.user_reviews.overall_rating;
+      document.getElementById('outReviewCount').textContent = `(${data.user_reviews.review_count} reviews)`;
+      document.getElementById('outReviewConsensus').textContent = `"${data.user_reviews.consensus}"`;
 
-      const reviewsList = document.getElementById('reviewsList');
-      reviewsList.innerHTML = '';
+      const reviewsContainer = document.getElementById('outReviewsContainer');
+      reviewsContainer.innerHTML = '';
       data.user_reviews.reviews.forEach(r => {
         const item = document.createElement('div');
-        item.className = 'bg-slate-950 p-4 rounded-xl border border-slate-800';
+        item.className = 'bg-stone-50 p-3.5 rounded-lg border border-stone-200 text-xs';
         item.innerHTML = `
-          <div class="flex justify-between items-center mb-1.5">
-            <span class="text-xs font-semibold text-slate-200">${r.reviewer} <span class="text-[10px] text-slate-500 font-normal ml-1">${r.date}</span></span>
-            <div class="flex text-amber-400 text-[10px]">
-              <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-            </div>
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-stone-900">${r.reviewer} <span class="text-[10px] text-stone-400 font-normal ml-1">${r.date}</span></span>
+            <span class="text-amber-700">★★★★★</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">"${r.comment}"</p>
+          <p class="text-stone-600 leading-relaxed">"${r.comment}"</p>
         `;
-        reviewsList.appendChild(item);
+        reviewsContainer.appendChild(item);
       });
 
       // 5. Pairing
-      document.getElementById('pairingText').textContent = data.suggested_pairing;
+      document.getElementById('outPairing').textContent = data.suggested_pairing;
 
-      // 6. Compression Dashboard Stats
-      const comp = data.compression;
-      statOrigSize.textContent = `${comp.originalSizeKb} KB`;
-      statCompSize.textContent = `${comp.finalSizeKb} KB`;
-      statReduction.textContent = comp.savingsPercentage;
+      // 6. Pre-AI Compression Monitor Dashboard
+      const c = data.compression;
+      labelOrigSize.textContent = `${c.originalSizeKb} KB`;
+      labelCompSize.textContent = `${c.finalSizeKb} KB`;
+      labelSavedPercent.textContent = c.savingsPercentage;
 
-      if (comp.compressed) {
-        compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30';
-        compressionBadge.textContent = 'Auto-Compressed (>512KB)';
-        compressionBar.style.width = comp.savingsPercentage;
+      if (c.compressed) {
+        badgeCompressionStatus.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-900 border border-orange-300';
+        badgeCompressionStatus.textContent = 'Auto-Compressed (>512KB)';
       } else {
-        compressionBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-        compressionBadge.textContent = 'Direct Pass (<=512KB)';
-        compressionBar.style.width = '100%';
+        badgeCompressionStatus.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300';
+        badgeCompressionStatus.textContent = 'Direct Pass (<=512KB)';
       }
-      compressionMessage.textContent = comp.message;
+      labelCompExplanation.textContent = c.message;
 
-      // 7. AI Telemetry
-      document.getElementById('aiTelemetryText').textContent = 
-        `Inference: ${data.ai_vision.model_info.inference_latency_ms}ms • Total: ${data.performance.total_latency_ms}ms • Model Size: ${data.ai_vision.model_info.size_mb} MB • ${data.python_integration.engine}`;
+      // 7. Telemetry
+      const backendName = data.ai_vision.model_info.backend || 'TensorFlow C++ Native';
+      document.getElementById('outTelemetry').textContent = 
+        `Inference: ${data.ai_vision.model_info.inference_latency_ms}ms • Size: ${data.ai_vision.model_info.size_mb} MB • ${backendName}`;
     }
   </script>
 </body>

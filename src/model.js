@@ -1,4 +1,21 @@
-const tf = require('@tensorflow/tfjs');
+// Polyfill util.isNullOrUndefined for Node.js 24 compatibility with @tensorflow/tfjs-node
+const util = require('util');
+if (!util.isNullOrUndefined) {
+  util.isNullOrUndefined = (val) => val === null || val === undefined;
+}
+
+let tf;
+let tfBackendName = 'tensorflow';
+try {
+  tf = require('@tensorflow/tfjs-node');
+  tfBackendName = tf.getBackend();
+  console.log('[AI Engine] Loaded @tensorflow/tfjs-node (Native C++ Backend: ' + tfBackendName + ')');
+} catch (err) {
+  console.warn('[AI Engine] Falling back to @tensorflow/tfjs:', err.message);
+  tf = require('@tensorflow/tfjs');
+  tfBackendName = tf.getBackend();
+}
+
 const mobilenet = require('@tensorflow-models/mobilenet');
 const sharp = require('sharp');
 const { processImageCompression } = require('./compressor');
@@ -117,6 +134,7 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
       model_info: {
         architecture: 'MobileNet v1 (α=0.25)',
         type: 'Low-Weight Edge Vision Model',
+        backend: tfBackendName === 'tensorflow' ? 'TensorFlow C++ Native (tfjs-node)' : tfBackendName,
         size_mb: 1.7,
         inference_latency_ms: inferTimeMs,
         tensor_prep_ms: tensorPrepTimeMs
