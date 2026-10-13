@@ -24,29 +24,74 @@ def analyze_palette(img):
     stat = ImageStat.Stat(small)
     r_mean, g_mean, b_mean = stat.mean
 
-    # Classify warmth and dominant visual tones
-    is_warm = (r_mean > b_mean + 15)
-    is_green = (g_mean > r_mean + 10 and g_mean > b_mean + 10)
-    is_red = (r_mean > g_mean + 30 and r_mean > b_mean + 30)
-    is_golden = (r_mean > 140 and g_mean > 100 and b_mean < 80)
-    is_dark = (r_mean < 70 and g_mean < 70 and b_mean < 70)
+    pixels = list(small.getdata())
+    total_pixels = len(pixels)
 
-    tone = "balanced"
-    if is_golden:
-        tone = "golden_fried_or_baked"
-    elif is_red:
-        tone = "rich_tomato_or_chili"
-    elif is_green:
+    green_count = 0
+    red_count = 0
+    golden_count = 0
+    orange_count = 0
+    yellow_count = 0
+    dark_count = 0
+    cream_count = 0
+    brown_count = 0
+
+    for r, g, b in pixels:
+        max_val = max(r, g, b)
+        min_val = min(r, g, b)
+        chroma = max_val - min_val
+
+        if max_val < 70:
+            dark_count += 1
+        elif min_val > 180 and chroma < 50:
+            cream_count += 1
+        elif g > r * 1.12 and g > b * 1.12 and g > 60:
+            green_count += 1
+        elif r > 170 and g > 145 and b < 130 and (r - b) >= 45 and (g - b) >= 35:
+            yellow_count += 1
+        elif r > 145 and 105 <= g <= 185 and b < 130 and 25 <= (r - g) <= 90:
+            golden_count += 1
+        elif r > 165 and 70 <= g <= 150 and b < 100 and (r - g) > 40:
+            orange_count += 1
+        elif r > 100 and r > g * 1.45 and r > b * 1.45 and g < 130:
+            red_count += 1
+        elif 70 < r < 165 and 40 < g < 125 and b < 90 and (r - b) >= 20:
+            brown_count += 1
+
+    ratios = {
+        "green": round(green_count / total_pixels, 3),
+        "red": round(red_count / total_pixels, 3),
+        "orange": round(orange_count / total_pixels, 3),
+        "yellow": round(yellow_count / total_pixels, 3),
+        "golden": round(golden_count / total_pixels, 3),
+        "dark": round(dark_count / total_pixels, 3),
+        "cream": round(cream_count / total_pixels, 3),
+        "brown": round(brown_count / total_pixels, 3)
+    }
+
+    # Determine dominant visual tone
+    if ratios["green"] >= 0.12:
         tone = "fresh_herb_or_vegetable"
-    elif is_warm:
-        tone = "savory_caramelized_warm"
-    elif is_dark:
+    elif ratios["red"] >= 0.15:
+        tone = "rich_tomato_or_chili"
+    elif ratios["golden"] >= 0.15 or ratios["yellow"] >= 0.15:
+        tone = "golden_fried_or_baked"
+    elif ratios["orange"] >= 0.12:
+        tone = "vibrant_spiced"
+    elif ratios["dark"] >= 0.20 or ratios["brown"] >= 0.20:
         tone = "deep_roasted_or_sauced"
+    elif ratios["cream"] >= 0.60:
+        tone = "creamy_velvety"
+    elif r_mean > b_mean + 25:
+        tone = "savory_caramelized_warm"
+    else:
+        tone = "balanced_clean"
 
     return {
         "rgb_mean": [round(r_mean, 1), round(g_mean, 1), round(b_mean, 1)],
         "warmth_score": round(max(0, (r_mean - b_mean) / 2.55), 1),
-        "visual_tone": tone
+        "visual_tone": tone,
+        "ratios": ratios
     }
 
 def compress_if_needed(input_path, output_path=None, threshold_kb=512.0):

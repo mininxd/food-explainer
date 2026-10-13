@@ -278,11 +278,38 @@ python3 python/food_engine.py compress /path/to/large_image.jpg /path/to/output.
 
 ---
 
+## 🚀 Deploy to Render.com
+
+Food Explainer is ready for 1-click deployment on [Render.com](https://render.com) using the included `render.yaml` Blueprint or native Docker container.
+
+### Option 1: Render Blueprint (Recommended)
+1. Fork or push this repository to your GitHub account (`https://github.com/mininxd/food-explainer`).
+2. Log in to your [Render Dashboard](https://dashboard.render.com/) and click **New +** → **Blueprint**.
+3. Connect your repository. Render automatically reads [`render.yaml`](file:///root/ai/render.yaml):
+   - **Service Name**: `food-explainer`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Health Check Path**: `/api/health`
+4. Click **Apply**. Your app will be live at `https://food-explainer.onrender.com/demo` in 2 minutes.
+
+### Option 2: Docker Web Service on Render
+1. In Render, select **New +** → **Web Service** → Connect your repository.
+2. Select **Docker** as the environment. Render automatically builds the production [`Dockerfile`](file:///root/ai/Dockerfile).
+3. Set Port to `3000` (or leave default).
+4. Deploy!
+
+---
+
 ## 📂 Project Structure
 
 ```text
 /root/ai/
 ├── server.js               # Express server running on port 3000
+├── render.yaml             # Render.com Blueprint configuration
+├── Dockerfile              # Production Dockerfile
+├── requirements.txt        # Python dependencies for optional PIL engine
+├── submission.txt          # Hackathon submission document for DEV
 ├── package.json            # Node.js dependencies & scripts
 ├── README.md               # User guide & technical documentation
 ├── python/

@@ -21,6 +21,7 @@ const sharp = require('sharp');
 const { processImageCompression } = require('./compressor');
 const { findBestFoodMatch, FOOD_DATABASE } = require('./foodKnowledge');
 const { analyzeImageWithPython } = require('./pythonBridge');
+const { analyzeImageFeatures } = require('./imageAnalyzer');
 
 let mobilenetModel = null;
 let isLoading = false;
@@ -72,8 +73,9 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
   const activeBuffer = compressionResult.buffer;
   const compressionStats = compressionResult.stats;
 
-  // STEP 2: Python vision analysis (concurrent)
+  // STEP 2: Vision & Feature Extraction (concurrent)
   const pythonPromise = analyzeImageWithPython(activeBuffer);
+  const visualFeaturePromise = analyzeImageFeatures(activeBuffer);
 
   // STEP 3: Tensor pre-processing (Sharp raw pixel extraction -> 224x224 RGB)
   const tensorStart = Date.now();
@@ -100,8 +102,8 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
   const inferTimeMs = Date.now() - inferStart;
   imageTensor.dispose(); // Free GPU/CPU memory immediately
 
-  // Await Python palette analysis
-  const pythonRes = await pythonPromise;
+  // Await Python palette analysis and Sharp feature extraction
+  const [pythonRes, visualFeatures] = await Promise.all([pythonPromise, visualFeaturePromise]);
   const palette = pythonRes && pythonRes.available && pythonRes.data ? pythonRes.data.palette : null;
 
   // STEP 5: Gastronomic Mapping
@@ -109,7 +111,7 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
   if (options.presetId && FOOD_DATABASE[options.presetId]) {
     foodMatch = FOOD_DATABASE[options.presetId];
   } else {
-    foodMatch = findBestFoodMatch(predictions, palette);
+    foodMatch = findBestFoodMatch(predictions, visualFeatures, palette);
   }
 
   const totalTimeMs = Date.now() - overallStart;
@@ -131,6 +133,12 @@ async function explainFoodFromImage(inputBuffer, options = {}) {
         label: p.className,
         confidence: +(p.probability * 100).toFixed(1) + '%'
       })),
+      visual_features: {
+        dominant_tone: (palette && palette.visual_tone) || 'balanced_clean',
+        warmth_score: visualFeatures.warmthScore,
+        color_diversity: visualFeatures.colorDiversity,
+        ratios: visualFeatures.ratios
+      },
       model_info: {
         architecture: 'MobileNet v1 (α=0.25)',
         type: 'Low-Weight Edge Vision Model',

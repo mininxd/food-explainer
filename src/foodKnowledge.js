@@ -953,57 +953,274 @@ const FOOD_DATABASE = {
 };
 
 /**
- * Intelligent matcher that connects ImageNet / MobileNet vision labels
- * and visual palette cues to our comprehensive restaurant gastronomy profiles.
+ * Gastronomic Dish Signatures for Intelligent Multi-Modal Vision
+ * Maps each of the 30 premier dishes to its authentic color profile signature,
+ * semantic ImageNet tokens, and visual tone preferences.
  */
-function findBestFoodMatch(predictions = [], palette = null) {
-  const labels = predictions.map(p => (p.className || '').toLowerCase());
-  const combined = labels.join(' ');
-
-  // 1. Direct label mapping across 30 premier dishes
-  if (combined.includes('pizza')) return FOOD_DATABASE.pizza;
-  if (combined.includes('cheeseburger') || combined.includes('hamburger')) return FOOD_DATABASE.cheeseburger;
-  if (combined.includes('ramen') || combined.includes('noodle') || combined.includes('soup bowl') || combined.includes('consomme')) return FOOD_DATABASE.ramen;
-  if (combined.includes('sushi') || combined.includes('nigiri') || combined.includes('sashimi')) return FOOD_DATABASE.sushi;
-  if (combined.includes('taco') || combined.includes('burrito') || combined.includes('tortilla') || combined.includes('guacamole')) return FOOD_DATABASE.tacos;
-  if (combined.includes('risotto') || combined.includes('mushroom') || combined.includes('potpie')) return FOOD_DATABASE.risotto;
-  if (combined.includes('pad thai') || combined.includes('wok') || combined.includes('prawn') || combined.includes('shrimp')) return FOOD_DATABASE.padthai;
-  if (combined.includes('steak') || combined.includes('beef') || combined.includes('meat loaf') || combined.includes('grill')) return FOOD_DATABASE.steak;
-  if (combined.includes('ice cream') || combined.includes('gelato')) return FOOD_DATABASE.dessert;
-  if (combined.includes('salad') || combined.includes('cucumber') || combined.includes('vegetable') || combined.includes('broccoli') || combined.includes('cauliflower')) return FOOD_DATABASE.salad;
-  
-  if (combined.includes('dim sum') || combined.includes('dumpling') || combined.includes('wonton') || combined.includes('potsticker') || combined.includes('bao')) return FOOD_DATABASE.dimsum;
-  if (combined.includes('pho') || combined.includes('vietnamese') || combined.includes('broth')) return FOOD_DATABASE.pho;
-  if (combined.includes('butter chicken') || combined.includes('tikka') || combined.includes('tandoori') || combined.includes('masala')) return FOOD_DATABASE.butterchicken;
-  if (combined.includes('tom yum') || combined.includes('hot and sour') || combined.includes('sour soup')) return FOOD_DATABASE.tomyum;
-  if (combined.includes('biryani') || combined.includes('pilaf') || combined.includes('spiced rice')) return FOOD_DATABASE.biryani;
-  if (combined.includes('paella') || combined.includes('saffron') || combined.includes('mussel') || combined.includes('crayfish') || combined.includes('crab')) return FOOD_DATABASE.paella;
-  if (combined.includes('fish and chips') || combined.includes('cod') || combined.includes('fried fish')) return FOOD_DATABASE.fishandchips;
-  if (combined.includes('bibimbap') || combined.includes('korean')) return FOOD_DATABASE.bibimbap;
-  if (combined.includes('poke') || combined.includes('raw fish') || combined.includes('tuna')) return FOOD_DATABASE.poke;
-  if (combined.includes('falafel') || combined.includes('chickpea') || combined.includes('pita') || combined.includes('hummus')) return FOOD_DATABASE.falafel;
-  if (combined.includes('lasagna') || combined.includes('pasta') || combined.includes('casserole')) return FOOD_DATABASE.lasagna;
-  if (combined.includes('croissant') || combined.includes('pastry') || combined.includes('baguette') || combined.includes('french loaf') || combined.includes('bakery')) return FOOD_DATABASE.croissant;
-  if (combined.includes('tiramisu') || combined.includes('sponge cake') || combined.includes('mascarpone')) return FOOD_DATABASE.tiramisu;
-  if (combined.includes('churros') || combined.includes('cinnamon') || combined.includes('fried dough') || combined.includes('chocolate')) return FOOD_DATABASE.churros;
-  if (combined.includes('peking duck') || combined.includes('duck') || combined.includes('roast fowl')) return FOOD_DATABASE.pekingduck;
-  if (combined.includes('ceviche') || combined.includes('lime') || combined.includes('cured fish')) return FOOD_DATABASE.ceviche;
-  if (combined.includes('shakshuka') || combined.includes('egg') || combined.includes('skillet') || combined.includes('scrambled')) return FOOD_DATABASE.shakshuka;
-  if (combined.includes('gyoza') || combined.includes('pan seared')) return FOOD_DATABASE.gyoza;
-  if (combined.includes('curry') || combined.includes('katsu')) return FOOD_DATABASE.katsucurry;
-  if (combined.includes('cheesecake') || combined.includes('cake') || combined.includes('tart') || combined.includes('pie')) return FOOD_DATABASE.cheesecake;
-
-  // 2. Palette-based fallback for generic classifications (like "plate" or "dish")
-  if (palette && palette.visual_tone) {
-    if (palette.visual_tone === 'rich_tomato_or_chili') return FOOD_DATABASE.pizza;
-    if (palette.visual_tone === 'golden_fried_or_baked') return FOOD_DATABASE.katsucurry;
-    if (palette.visual_tone === 'fresh_herb_or_vegetable') return FOOD_DATABASE.salad;
-    if (palette.visual_tone === 'deep_roasted_or_sauced') return FOOD_DATABASE.steak;
-    if (palette.visual_tone === 'savory_caramelized_warm') return FOOD_DATABASE.ramen;
+const DISH_CONFIGS = [
+  {
+    id: 'ramen',
+    keywords: ['ramen', 'noodle', 'soup bowl', 'consomme', 'hot pot', 'broth', 'tamago', 'chashu', 'dashi', 'miso', 'udon', 'soba'],
+    sig: { orange: 0.20, golden: 0.10, dark: 0.07, cream: 0.48, red: 0.05, brown: 0.02 },
+    tones: ['savory_caramelized_warm', 'rich_tomato_or_chili']
+  },
+  {
+    id: 'pizza',
+    keywords: ['pizza', 'pizza pie', 'flatbread', 'margherita', 'mozzarella', 'crust'],
+    sig: { red: 0.32, cream: 0.50, golden: 0.04, yellow: 0.05, dark: 0.00, green: 0.01 },
+    tones: ['rich_tomato_or_chili', 'golden_fried_or_baked']
+  },
+  {
+    id: 'cheeseburger',
+    keywords: ['cheeseburger', 'hamburger', 'burger', 'bun', 'sandwich', 'patty', 'bacon'],
+    sig: { golden: 0.24, cream: 0.52, yellow: 0.06, green: 0.04, dark: 0.02, brown: 0.01 },
+    tones: ['savory_caramelized_warm', 'golden_fried_or_baked']
+  },
+  {
+    id: 'sushi',
+    keywords: ['sushi', 'nigiri', 'sashimi', 'nori', 'seaweed', 'maki', 'wasabi', 'raw fish'],
+    sig: { dark: 0.40, cream: 0.46, orange: 0.03, red: 0.02, green: 0.01 },
+    tones: ['deep_roasted_or_sauced', 'balanced_clean']
+  },
+  {
+    id: 'tacos',
+    keywords: ['taco', 'burrito', 'tortilla', 'guacamole', 'mexican', 'salsa', 'cilantro', 'birria'],
+    sig: { yellow: 0.12, red: 0.14, cream: 0.65, orange: 0.03, golden: 0.02, green: 0.01 },
+    tones: ['rich_tomato_or_chili', 'vibrant_spiced']
+  },
+  {
+    id: 'risotto',
+    keywords: ['risotto', 'mushroom', 'truffle', 'parmesan', 'arborio', 'potpie', 'casserole'],
+    sig: { cream: 0.95, brown: 0.01, golden: 0.01, red: 0.01 },
+    tones: ['creamy_velvety', 'balanced_clean']
+  },
+  {
+    id: 'padthai',
+    keywords: ['pad thai', 'wok', 'prawn', 'shrimp', 'bean sprout', 'tamarind', 'crushed peanut'],
+    sig: { orange: 0.25, golden: 0.25, yellow: 0.15, green: 0.10, red: 0.10, cream: 0.15 },
+    tones: ['vibrant_spiced', 'golden_fried_or_baked']
+  },
+  {
+    id: 'steak',
+    keywords: ['steak', 'beef', 'ribeye', 'meat loaf', 'meatloaf', 'meat', 'grill', 'roast', 'barbecue'],
+    sig: { dark: 0.45, brown: 0.35, golden: 0.10, cream: 0.10 },
+    tones: ['deep_roasted_or_sauced', 'savory_caramelized_warm']
+  },
+  {
+    id: 'dessert',
+    keywords: ['ice cream', 'icecream', 'gelato', 'dessert', 'sorbet', 'sundae', 'trifle', 'ice lolly', 'vanilla'],
+    sig: { cream: 0.70, red: 0.18, yellow: 0.08, golden: 0.04 },
+    tones: ['creamy_velvety', 'balanced_clean']
+  },
+  {
+    id: 'salad',
+    keywords: ['salad', 'cucumber', 'cuke', 'broccoli', 'cauliflower', 'head cabbage', 'artichoke', 'zucchini', 'vegetable', 'greens', 'lettuce'],
+    sig: { green: 0.45, red: 0.20, cream: 0.25, yellow: 0.08, brown: 0.02 },
+    tones: ['fresh_herb_or_vegetable']
+  },
+  {
+    id: 'dimsum',
+    keywords: ['dim sum', 'dumpling', 'bao', 'wonton', 'potsticker', 'siu mai', 'har gow', 'steamer'],
+    sig: { cream: 0.75, golden: 0.12, brown: 0.08, red: 0.05 },
+    tones: ['balanced_clean', 'creamy_velvety']
+  },
+  {
+    id: 'pho',
+    keywords: ['pho', 'vietnamese', 'beef soup', 'rice noodle', 'star anise', 'clear broth', 'bean sprout'],
+    sig: { cream: 0.50, green: 0.22, brown: 0.18, dark: 0.05, red: 0.05 },
+    tones: ['balanced_clean', 'fresh_herb_or_vegetable']
+  },
+  {
+    id: 'butterchicken',
+    keywords: ['butter chicken', 'tikka', 'masala', 'curry', 'tandoori', 'indian curry', 'makhani', 'naan'],
+    sig: { orange: 0.35, red: 0.30, cream: 0.20, golden: 0.10, brown: 0.05 },
+    tones: ['rich_tomato_or_chili', 'vibrant_spiced']
+  },
+  {
+    id: 'tomyum',
+    keywords: ['tom yum', 'hot and sour', 'sour soup', 'lemongrass', 'galangal', 'thai soup', 'spicy prawn'],
+    sig: { red: 0.40, orange: 0.25, green: 0.15, cream: 0.12, golden: 0.05 },
+    tones: ['rich_tomato_or_chili', 'vibrant_spiced']
+  },
+  {
+    id: 'biryani',
+    keywords: ['biryani', 'pilaf', 'saffron rice', 'basmati', 'spiced rice', 'dum biryani', 'hyderabadi'],
+    sig: { yellow: 0.38, golden: 0.30, brown: 0.18, cream: 0.10, red: 0.04 },
+    tones: ['golden_fried_or_baked', 'vibrant_spiced']
+  },
+  {
+    id: 'paella',
+    keywords: ['paella', 'saffron', 'mussel', 'crayfish', 'crab', 'lobster', 'shrimp', 'socarrat', 'valencia'],
+    sig: { yellow: 0.30, golden: 0.25, red: 0.22, dark: 0.18, green: 0.05 },
+    tones: ['golden_fried_or_baked', 'vibrant_spiced']
+  },
+  {
+    id: 'fishandchips',
+    keywords: ['fish and chips', 'fried fish', 'cod', 'french fries', 'chips', 'batter', 'tartar sauce'],
+    sig: { golden: 0.50, yellow: 0.28, cream: 0.18, brown: 0.04 },
+    tones: ['golden_fried_or_baked']
+  },
+  {
+    id: 'bibimbap',
+    keywords: ['bibimbap', 'korean', 'stone pot', 'dolsot', 'gochujang', 'namul', 'egg yolk'],
+    sig: { green: 0.25, red: 0.22, yellow: 0.18, dark: 0.18, cream: 0.17 },
+    tones: ['fresh_herb_or_vegetable', 'vibrant_spiced']
+  },
+  {
+    id: 'poke',
+    keywords: ['poke', 'ahi tuna', 'salmon poke', 'edamame', 'seaweed salad', 'hawaiian bowl', 'raw fish'],
+    sig: { green: 0.24, orange: 0.24, red: 0.22, cream: 0.20, dark: 0.10 },
+    tones: ['fresh_herb_or_vegetable', 'balanced_clean']
+  },
+  {
+    id: 'falafel',
+    keywords: ['falafel', 'hummus', 'tahini', 'chickpea', 'pita', 'mezze', 'middle eastern'],
+    sig: { brown: 0.35, green: 0.25, golden: 0.20, cream: 0.20 },
+    tones: ['fresh_herb_or_vegetable', 'golden_fried_or_baked']
+  },
+  {
+    id: 'lasagna',
+    keywords: ['lasagna', 'pasta bake', 'casserole', 'bolognese', 'bechamel', 'baked pasta', 'ragu'],
+    sig: { red: 0.35, golden: 0.25, cream: 0.22, brown: 0.18 },
+    tones: ['rich_tomato_or_chili', 'golden_fried_or_baked']
+  },
+  {
+    id: 'croissant',
+    keywords: ['croissant', 'pastry', 'bakery', 'french loaf', 'baguette', 'brioche', 'dough'],
+    sig: { golden: 0.62, yellow: 0.22, cream: 0.16 },
+    tones: ['golden_fried_or_baked']
+  },
+  {
+    id: 'tiramisu',
+    keywords: ['tiramisu', 'espresso', 'coffee', 'mascarpone', 'cocoa', 'ladyfinger', 'sponge cake'],
+    sig: { dark: 0.36, cream: 0.38, brown: 0.20, golden: 0.06 },
+    tones: ['deep_roasted_or_sauced', 'creamy_velvety']
+  },
+  {
+    id: 'churros',
+    keywords: ['churros', 'cinnamon', 'fried dough', 'chocolate sauce', 'chocolate syrup', 'hot chocolate'],
+    sig: { golden: 0.48, dark: 0.26, brown: 0.16, yellow: 0.10 },
+    tones: ['golden_fried_or_baked', 'deep_roasted_or_sauced']
+  },
+  {
+    id: 'pekingduck',
+    keywords: ['peking duck', 'duck', 'roast fowl', 'crispy duck', 'hoisin', 'pancake'],
+    sig: { dark: 0.32, brown: 0.38, golden: 0.16, cream: 0.14 },
+    tones: ['deep_roasted_or_sauced', 'savory_caramelized_warm']
+  },
+  {
+    id: 'ceviche',
+    keywords: ['ceviche', 'cured fish', 'lime', 'leche de tigre', 'peruvian', 'red onion', 'sea bass'],
+    sig: { cream: 0.52, green: 0.20, red: 0.16, yellow: 0.12 },
+    tones: ['fresh_herb_or_vegetable', 'balanced_clean']
+  },
+  {
+    id: 'shakshuka',
+    keywords: ['shakshuka', 'poached egg', 'egg', 'skillet', 'scrambled', 'tomato skillet', 'bell pepper'],
+    sig: { red: 0.46, yellow: 0.24, cream: 0.15, green: 0.10, brown: 0.05 },
+    tones: ['rich_tomato_or_chili', 'vibrant_spiced']
+  },
+  {
+    id: 'gyoza',
+    keywords: ['gyoza', 'potsticker', 'dumpling', 'pan seared', 'pan-fried', 'lace dumpling'],
+    sig: { cream: 0.45, golden: 0.32, brown: 0.14, dark: 0.09 },
+    tones: ['golden_fried_or_baked', 'savory_caramelized_warm']
+  },
+  {
+    id: 'katsucurry',
+    keywords: ['katsu', 'curry', 'pork cutlet', 'tonkatsu', 'panko', 'japanese curry'],
+    sig: { golden: 0.38, brown: 0.30, cream: 0.22, orange: 0.10 },
+    tones: ['golden_fried_or_baked', 'savory_caramelized_warm']
+  },
+  {
+    id: 'cheesecake',
+    keywords: ['cheesecake', 'burnt cheesecake', 'basque', 'cake', 'tart', 'custard', 'baked cheesecake'],
+    sig: { cream: 0.55, dark: 0.22, brown: 0.14, golden: 0.09 },
+    tones: ['creamy_velvety', 'golden_fried_or_baked']
   }
+];
 
-  // Default to Ramen
-  return FOOD_DATABASE.ramen;
+const COLOR_KEYS = ['red', 'green', 'golden', 'yellow', 'orange', 'dark', 'cream', 'brown'];
+
+/**
+ * Intelligent matcher that combines:
+ * 1. Semantic ImageNet labels from MobileNet
+ * 2. Visual color signature Euclidean distance
+ * 3. Dominant culinary tone preferences
+ * 4. Perceptual seed hash tie-breaking
+ * Eliminates single-dish fallbacks and ensures dynamic recognition across all 30 dishes.
+ */
+function findBestFoodMatch(predictions = [], visualFeatures = null, palette = null) {
+  const feat = visualFeatures || {
+    ratios: { red: 0, green: 0, golden: 0, yellow: 0, orange: 0, dark: 0, cream: 0, brown: 0 },
+    colorDiversity: 50,
+    seed: 42
+  };
+  const ratios = feat.ratios || {};
+  const detectedTone = (palette && palette.visual_tone) || 'balanced_clean';
+  const seed = feat.seed || 42;
+
+  // Extract prediction labels with rank and probability
+  const preds = (predictions || []).map((p, idx) => ({
+    label: (p.className || '').toLowerCase(),
+    prob: p.probability || 0,
+    rank: idx
+  }));
+
+  const scoredDishes = DISH_CONFIGS.map((dish, dishIdx) => {
+    // 1. Semantic Score from MobileNet ImageNet classes
+    let semanticScore = 0;
+    for (const p of preds) {
+      for (const kw of dish.keywords) {
+        if (p.label.includes(kw)) {
+          // Boost strongly if top prediction
+          semanticScore += (p.prob * 120) + (40 / (p.rank + 1));
+          break;
+        }
+      }
+    }
+
+    // 2. Visual Color Signature Distance (Weighted Euclidean)
+    let distSq = 0;
+    for (const k of COLOR_KEYS) {
+      const observed = ratios[k] || 0;
+      const target = dish.sig[k] || 0;
+      const diff = observed - target;
+      let w = 1.0;
+      if (k === 'green') w = 3.0;
+      if (k === 'dark') w = 3.0;
+      if (k === 'yellow') w = 2.0;
+      if (k === 'red') w = 1.5;
+      distSq += diff * diff * w;
+    }
+    const dist = Math.sqrt(distSq);
+    const visualScore = 100 / (1 + dist * 5);
+
+    // 3. Dominant Tone Bonus
+    let toneBonus = 0;
+    if (dish.tones && dish.tones.includes(detectedTone)) {
+      toneBonus = 15;
+    }
+
+    // 4. Perceptual hash tie-breaker (spreads close calls across all 30 dishes)
+    const seedBonus = ((seed * (dishIdx + 7)) % 100) / 25.0; // 0.0 to 4.0 points
+
+    const totalScore = visualScore + semanticScore + toneBonus + seedBonus;
+
+    return {
+      id: dish.id,
+      totalScore: +totalScore.toFixed(2),
+      visualScore: +visualScore.toFixed(2),
+      semanticScore: +semanticScore.toFixed(2),
+      toneBonus
+    };
+  });
+
+  // Sort descending by total score
+  scoredDishes.sort((a, b) => b.totalScore - a.totalScore);
+
+  const bestMatchId = scoredDishes[0].id;
+  return FOOD_DATABASE[bestMatchId] || FOOD_DATABASE.ramen;
 }
 
 module.exports = {
