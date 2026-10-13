@@ -92,9 +92,9 @@ I used Google Antigravity with Gemini 3.7 to pair-program the entire application
 
 You can explore the interactive agent transcript below:
 
-{% agent_session 860 %}
+{% agent_session 861 %}
 
-- **Interactive Session Link**: [https://dev.to/agent_sessions/building-food-explainer-ultra-low-weight-edge-ai-dynamic-gastronomy-engine-m5gkga](https://dev.to/agent_sessions/building-food-explainer-ultra-low-weight-edge-ai-dynamic-gastronomy-engine-m5gkga)
+- **Interactive Session Link**: [https://dev.to/agent_sessions/building-food-explainer-ultra-low-weight-edge-ai-dynamic-gastronomy-engine-tsha7a](https://dev.to/agent_sessions/building-food-explainer-ultra-low-weight-edge-ai-dynamic-gastronomy-engine-tsha7a)
 
 ---
 
